@@ -64,7 +64,6 @@ public class AuthHandler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(passwordChangeUseCase.apply(token, ele), Response.class));
     }
-
     public Mono<ServerResponse> validateBearerToken(ServerRequest serverRequest) {
         String token = serverRequest.headers().firstHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {

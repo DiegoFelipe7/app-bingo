@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
 @Configuration
-@ComponentScan("com.bingo.appbingo.infrastructure.entry_points.api.auth")
+@ComponentScan("com.bingo.appbingo.infrastructure.entry_points.api.*")
 @ComponentScan(basePackages = "com.bingo.appbingo.domain.usecase",
         includeFilters = {
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "^.+UseCase$")

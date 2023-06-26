@@ -12,8 +12,6 @@ public interface UserRepository {
     Mono<Response>accountRegistration(Users users);
     Mono<Response>referral(Users users);
     Mono<Boolean> validateToken(String token);
-    Mono<Response> passwordRecovery(Login email);
-    Mono<Boolean> tokenValidation(String token);
-    Mono<Response> passwordChange(String token, Login login);
+
     Mono<Response> activateAccount(String token);
 }

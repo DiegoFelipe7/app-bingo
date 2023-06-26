@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface AuthRepository extends ReactiveCrudRepository<UsersEntity, Integer>, ReactiveQueryByExampleExecutor<UsersEntity> {
+public interface AuthReactiveRepository extends ReactiveCrudRepository<UsersEntity, Integer>, ReactiveQueryByExampleExecutor<UsersEntity> {
     Mono<UsersEntity> findByUsername(String username);
     Mono<UsersEntity> findByEmailIgnoreCase(String email);
 

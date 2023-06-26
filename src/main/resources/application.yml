@@ -13,7 +13,7 @@ jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
   expiration: 3600
 evox:
-  url: https://backoffice.evox.com.co/
+  url: https://betbillions.com.co/
   email:
     sender: corporate@evox.com.co
     password : Evoteam2022

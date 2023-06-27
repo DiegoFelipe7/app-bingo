@@ -1,16 +1,19 @@
-package com.bingo.appbingo.infrastructure.driver_adapter.auth.mapper;
+package com.bingo.appbingo.infrastructure.driver_adapter.users.mapper;
 
 import com.bingo.appbingo.domain.model.auth.Users;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.UsersEntity;
 
 public class UserMapper {
+    private UserMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
 
     public static Users usersEntityAUsers(UsersEntity usersEntity){
         return Users.builder()
                 .id(usersEntity.getId())
                 .username(usersEntity.getUsername())
                 .email(usersEntity.getEmail())
-                .password(usersEntity.getPassword())
                 .fullName(usersEntity.getFullName())
                 .phone(usersEntity.getPhone())
                 .country(usersEntity.getCountry())
@@ -34,7 +37,6 @@ public class UserMapper {
                 .id(users.getId())
                 .username(users.getUsername())
                 .email(users.getEmail())
-                .password(users.getPassword())
                 .fullName(users.getFullName())
                 .phone(users.getPhone())
                 .country(users.getCountry())

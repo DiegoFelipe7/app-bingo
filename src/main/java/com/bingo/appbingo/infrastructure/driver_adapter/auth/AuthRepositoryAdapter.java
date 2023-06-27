@@ -2,15 +2,15 @@ package com.bingo.appbingo.infrastructure.driver_adapter.auth;
 
 
 import com.bingo.appbingo.domain.model.auth.Login;
-import com.bingo.appbingo.domain.model.auth.Role;
+import com.bingo.appbingo.domain.model.enums.Role;
 import com.bingo.appbingo.domain.model.auth.Token;
 import com.bingo.appbingo.domain.model.auth.Users;
-import com.bingo.appbingo.domain.model.auth.gateways.UserRepository;
+import com.bingo.appbingo.domain.model.auth.gateways.AuthRepository;
 import com.bingo.appbingo.domain.model.session.Session;
 import com.bingo.appbingo.domain.model.session.gateway.SessionsRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
-import com.bingo.appbingo.infrastructure.driver_adapter.auth.mapper.UserMapper;
+import com.bingo.appbingo.infrastructure.driver_adapter.auth.mapper.AuthMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
-public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, AuthReactiveRepository> implements UserRepository, SessionsRepository {
+public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, AuthReactiveRepository> implements AuthRepository, SessionsRepository {
     private final SessionRepository sessionRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
@@ -89,7 +89,7 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El link de referido no existe!", TypeStateResponse.Warning)))
                 .flatMap(parent -> {
                     user.setParentId(parent.getId());
-                    return repository.save(UserMapper.usersAUserEntity(user)).flatMap(ele ->
+                    return repository.save(AuthMapper.usersAUserEntity(user)).flatMap(ele ->
                             emailService.sendEmailWelcome(ele.getFullName(), ele.getEmail(), ele.getToken())
                                     .then(Mono.just(new Response(TypeStateResponses.Success, "Hemos enviado un correo electrónico para la activacion de tu cuenta!" + ele.getFullName()))));
                 });

@@ -23,7 +23,7 @@ public class MainSecurity {
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http, JwtFilter jwtFilter) {
         return http
-                .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
+               // .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
                 .authorizeExchange()
                 .pathMatchers("/api/auth/**").permitAll()
                 .anyExchange().authenticated()
@@ -37,16 +37,16 @@ public class MainSecurity {
                 .build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT","OPTIONS","PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization","Access-Control-Allow-Methods", "Content-Type", "Access-Control-Allow-Origin"));
-        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("*"));
+//        configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT","OPTIONS","PATCH"));
+//        configuration.setAllowedHeaders(Arrays.asList("Authorization","Access-Control-Allow-Methods", "Content-Type", "Access-Control-Allow-Origin"));
+//        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 
 }

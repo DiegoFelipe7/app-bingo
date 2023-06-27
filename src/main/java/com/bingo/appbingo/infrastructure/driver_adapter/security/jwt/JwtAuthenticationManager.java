@@ -1,7 +1,10 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.security.jwt;
 
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +29,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
             return Mono.just(authentication)
                     .map(auth -> jwtProvider.getClaims(auth.getCredentials().toString()))
                     //.log()
-                    .onErrorResume(e -> Mono.error(new NullPointerException("")))
+                    .onErrorResume(e -> Mono.error(new CustomException(HttpStatus.UNAUTHORIZED, "bad token", TypeStateResponse.Error)))
                     .map(claims -> new UsernamePasswordAuthenticationToken(
                             claims.getSubject(),
                             null,

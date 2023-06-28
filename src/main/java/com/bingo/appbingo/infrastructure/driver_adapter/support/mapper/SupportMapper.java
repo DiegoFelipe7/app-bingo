@@ -25,7 +25,7 @@ public class SupportMapper {
                 .build();
     }
 
-    public static SupportEntity supportEntityASupport(Support Support){
+    public static SupportEntity supportASupportEntity(Support Support){
         return SupportEntity.builder()
                 .id(Support.getId())
                 .ticket(Support.getTicket())

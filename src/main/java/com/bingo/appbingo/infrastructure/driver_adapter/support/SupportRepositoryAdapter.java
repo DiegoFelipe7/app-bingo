@@ -74,7 +74,7 @@ public class SupportRepositoryAdapter extends ReactiveAdapterOperations<Support 
                     support.setTicket(Utils.uid());
                     support.setUserId(ele.getId());
                     support.setState(StateSupport.Pending);
-                    return repository.save(SupportMapper.supportEntityASupport(support))
+                    return repository.save(SupportMapper.supportASupportEntity(support))
                             .thenReturn(new Response(TypeStateResponses.Success, "Solicitud enviada!"));
                 });
 

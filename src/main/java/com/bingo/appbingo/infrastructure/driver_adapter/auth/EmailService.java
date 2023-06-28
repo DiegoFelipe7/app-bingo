@@ -2,6 +2,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.auth;
 
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
+import com.bingo.appbingo.infrastructure.driver_adapter.helper.MessageHtml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,22 +29,20 @@ public class EmailService {
     public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
-        this.scheduler = Schedulers.boundedElastic(); // Crea un scheduler elástico para las operaciones asíncronas
+        this.scheduler = Schedulers.boundedElastic();
     }
 
     public Mono<Void> sendEmailWelcome(String fullName, String email, String token) {
+        MimeMessage message = mailSender.createMimeMessage();
+        String welcome = MessageHtml.welcome(fullName,token);
         return Mono.fromRunnable(() -> {
             try {
-                Context context = new Context();
-                context.setVariable("token", token);
-                context.setVariable("fullName", fullName);
-                String htmlContent = templateEngine.process("welcome", context);
-                MimeMessage message = mailSender.createMimeMessage();
+
+                message.setSubject("Bienvenido a bet billions");
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
                 helper.setFrom(emailSender);
-                helper.setSubject("Bienvenido a evox");
                 helper.setTo(email);
-                helper.setText(htmlContent, true);
+                helper.setText(welcome, true);
                 mailSender.send(message);
             } catch (Exception e) {
                 System.out.println(e);

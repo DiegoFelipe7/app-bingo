@@ -20,8 +20,8 @@ public class Transaction {
     private Integer userId;
     private StateTransaction stateTransaction;
     private Boolean state;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Transaction(Integer id, String walletType, String transaction, BigDecimal price, String urlTransaction, StateTransaction stateTransaction, Boolean state) {
         this.id = id;

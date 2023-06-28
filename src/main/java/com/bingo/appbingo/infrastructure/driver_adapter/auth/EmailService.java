@@ -37,7 +37,6 @@ public class EmailService {
         String welcome = MessageHtml.welcome(fullName,token);
         return Mono.fromRunnable(() -> {
             try {
-
                 message.setSubject("Bienvenido a bet billions");
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
                 helper.setFrom(emailSender);
@@ -64,6 +63,24 @@ public class EmailService {
                 helper.setTo(email);
                 helper.setSubject("Restablecimiento de contraseña");
                 helper.setText(htmlContent, true); // Establece el contenido del correo electrónico como HTML
+                mailSender.send(message);
+            } catch (Exception e) {
+                Mono.error(new CustomException(HttpStatus.BAD_REQUEST, e.getMessage(), TypeStateResponse.Error));
+            }
+        }).subscribeOn(scheduler).then();
+    }
+
+    public Mono<Void> invalidTransaction(String fullName, String email) {
+        MimeMessage message = mailSender.createMimeMessage();
+        String invalid = MessageHtml.invalidTransaction(fullName);
+
+        return Mono.fromRunnable(() -> {
+            try {
+                message.setSubject("Error en hash de transacción");
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                helper.setFrom(emailSender);
+                helper.setTo(email);
+                helper.setText(invalid, true);
                 mailSender.send(message);
             } catch (Exception e) {
                 Mono.error(new CustomException(HttpStatus.BAD_REQUEST, e.getMessage(), TypeStateResponse.Error));

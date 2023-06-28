@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface TransactionReactiveRepository extends ReactiveCrudRepository<TransactionEntity , Integer> , ReactiveQueryByExampleExecutor<TransactionEntity> {
-    Mono<TransactionEntity> findByTransaction(String transaction);
+    Mono<TransactionEntity> findByTransactionIgnoreCase(String transaction);
 }

@@ -11,4 +11,5 @@ public interface TransactionRepository {
     Mono<TransactionDto> getTransactionId(Integer id);
     Flux<TransactionDto> getAllTransaction();
     Mono<Response> validateTransaction(String transaction);
+    Mono<Response> invalidTransaction(String transaction);
 }

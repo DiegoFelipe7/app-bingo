@@ -1,4 +1,9 @@
 spring:
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    check-template-location: false
   r2dbc:
     url: r2dbc:postgresql://3.140.1.248:5432/bd-prueba
     username: postgres

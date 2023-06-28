@@ -6,6 +6,7 @@ import com.bingo.appbingo.domain.model.transaction.TransactionDto;
 import com.bingo.appbingo.domain.model.transaction.gateway.TransactionRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
+import com.bingo.appbingo.infrastructure.driver_adapter.auth.EmailService;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
@@ -23,29 +24,35 @@ import reactor.core.publisher.Mono;
 public class TransactionAdapterRepository extends ReactiveAdapterOperations<Transaction, TransactionEntity, Integer, TransactionReactiveRepository> implements TransactionRepository {
     private final UsersReactiveRepository usersReactiveRepository;
     private final JwtProvider jwtProvider;
+    private final EmailService emailService;
 
-    public TransactionAdapterRepository(TransactionReactiveRepository repository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider) {
+    public TransactionAdapterRepository(TransactionReactiveRepository repository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, EmailService emailService) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Transaction.TransactionBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.jwtProvider = jwtProvider;
+        this.emailService = emailService;
     }
 
     @Override
     public Mono<Response> saveTransaction(Transaction transaction, String token) {
         String username = jwtProvider.extractToken(token);
-        return usersReactiveRepository.findByUsername(username)
-                .flatMap(ele -> {
-                    transaction.setUserId(ele.getId());
-                    transaction.setStateTransaction(StateTransaction.Pending);
-                    return repository.save(TransactionMapper.transactionATransactionEntity(transaction))
-                            .thenReturn(new Response(TypeStateResponses.Success, "Transacción enviada"));
-                });
+        return repository.findByTransactionIgnoreCase(transaction.getTransaction())
+                .flatMap(existingTransaction -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Esta transacción ya se encuentra registrada!", TypeStateResponse.Warning)))
+                .switchIfEmpty(usersReactiveRepository.findByUsername(username)
+                        .map(user -> {
+                            transaction.setUserId(user.getId());
+                            transaction.setStateTransaction(StateTransaction.Pending);
+                            return repository.save(TransactionMapper.transactionATransactionEntity(transaction));
+                        })
+                        .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Transacción enviada")))
+                ).cast(Response.class);
     }
+
 
     @Override
     public Mono<TransactionDto> getTransactionId(Integer id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST , "Error en el id de la transacción" , TypeStateResponse.Warning)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el id de la transacción", TypeStateResponse.Warning)))
                 .flatMap(ele -> usersReactiveRepository.findById(ele.getId())
                         .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(), ele.getTransaction(), ele.getPrice(), ele.getUrlTransaction(), ele.getStateTransaction(), ele.getState(), data.getUsername(), data.getEmail())));
     }
@@ -59,13 +66,30 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
 
     @Override
     public Mono<Response> validateTransaction(String transaction) {
-        return repository.findByTransaction(transaction)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la seleccion de la transacción", TypeStateResponse.Error)))
-                .flatMap(ele->{
+        return repository.findByTransactionIgnoreCase(transaction)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la selección de la transacción", TypeStateResponse.Error)))
+                .flatMap(ele -> {
                     ele.setId(ele.getId());
-                    ele.setState(false);
+                    ele.setState(true);
                     ele.setStateTransaction(StateTransaction.Completed);
-                    return repository.save(ele).thenReturn(new Response());
+                    return repository.save(ele)
+                            .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
                 });
+    }
+
+    @Override
+    public Mono<Response> invalidTransaction(String transaction) {
+        return repository.findByTransactionIgnoreCase(transaction)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la transacción", TypeStateResponse.Error)))
+                .flatMap(transactionEntity -> usersReactiveRepository.findById(transactionEntity.getId())
+                        .flatMap(user -> {
+                            transactionEntity.setId(transactionEntity.getId());
+                            transactionEntity.setState(false);
+                            transactionEntity.setStateTransaction(StateTransaction.Invalid);
+                            return repository.save(transactionEntity)
+                                    .flatMap(savedTransaction -> emailService.invalidTransaction(user.getFullName(), user.getEmail()))
+                                    .thenReturn(new Response(TypeStateResponses.Success, "Transacción invalidada"));
+                        })
+                );
     }
 }

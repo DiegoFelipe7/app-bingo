@@ -20,8 +20,8 @@ public class TransactionMapper {
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
-                .createAt(transaction.getCreateAt())
-                .updateAt(transaction.getUpdateAt())
+                .createdAt(transaction.getCreateAt())
+                .updatedAt(transaction.getUpdateAt())
                 .build();
     }
 
@@ -35,8 +35,8 @@ public class TransactionMapper {
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
-                .createAt(transaction.getCreateAt())
-                .updateAt(transaction.getUpdateAt())
+                .createAt(transaction.getCreatedAt())
+                .updateAt(transaction.getUpdatedAt())
                 .build();
     }
 }

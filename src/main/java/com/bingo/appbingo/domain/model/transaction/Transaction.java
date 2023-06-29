@@ -16,6 +16,7 @@ public class Transaction {
     private String walletType;
     private String transaction;
     private BigDecimal price;
+    private String currency;
     private String urlTransaction;
     private Integer userId;
     private StateTransaction stateTransaction;

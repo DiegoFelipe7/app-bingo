@@ -16,7 +16,7 @@ public class RouterTransaction {
                 .GET(PATH +"list", transactionHandler::getAllTransaction)
                 .GET(PATH +"{id}", transactionHandler::getAllTransactionId)
                 .POST(PATH+"save" , transactionHandler::saveTransaction)
-                .PATCH(PATH+"transaction/{transaction}" , transactionHandler::validateTransaction)
+                .PATCH(PATH+"validate/{transaction}" , transactionHandler::validateTransaction)
                 .PATCH(PATH+"invalid/{transaction}" , transactionHandler::invalidTransaction)
                 .build();
     }

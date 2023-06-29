@@ -19,6 +19,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 
 @Repository
 public class TransactionAdapterRepository extends ReactiveAdapterOperations<Transaction, TransactionEntity, Integer, TransactionReactiveRepository> implements TransactionRepository {
@@ -32,22 +34,6 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
         this.jwtProvider = jwtProvider;
         this.emailService = emailService;
     }
-
-    @Override
-    public Mono<Response> saveTransaction(Transaction transaction, String token) {
-        String username = jwtProvider.extractToken(token);
-        return repository.findByTransactionIgnoreCase(transaction.getTransaction())
-                .flatMap(existingTransaction -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Esta transacción ya se encuentra registrada!", TypeStateResponse.Warning)))
-                .switchIfEmpty(usersReactiveRepository.findByUsername(username)
-                        .map(user -> {
-                            transaction.setUserId(user.getId());
-                            transaction.setStateTransaction(StateTransaction.Pending);
-                            return repository.save(TransactionMapper.transactionATransactionEntity(transaction));
-                        })
-                        .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Transacción enviada")))
-                ).cast(Response.class);
-    }
-
 
     @Override
     public Mono<TransactionDto> getTransactionId(Integer id) {
@@ -65,26 +51,48 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
     }
 
     @Override
-    public Mono<Response> validateTransaction(String transaction) {
-        return repository.findByTransactionIgnoreCase(transaction)
+    public Mono<Response> saveTransaction(Transaction transaction, String token) {
+        String username = jwtProvider.extractToken(token);
+        return repository.findByTransactionIgnoreCase(transaction.getTransaction())
+                .flatMap(existingTransaction -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Esta transacción ya se encuentra registrada!", TypeStateResponse.Warning)))
+                .switchIfEmpty(usersReactiveRepository.findByUsername(username)
+                        .flatMap(user -> {
+                            transaction.setUserId(user.getId());
+                            transaction.setStateTransaction(StateTransaction.Pending);
+                            return repository.save(TransactionMapper.transactionATransactionEntity(transaction));
+                        })
+                        .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Transacción enviada")))
+                ).cast(Response.class);
+    }
+
+
+    @Override
+    public Mono<Response> validateTransaction(String hash, Transaction transaction) {
+        return repository.findByTransactionIgnoreCase(hash)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la selección de la transacción", TypeStateResponse.Error)))
                 .flatMap(ele -> {
-                    ele.setId(ele.getId());
+                    if (ele.getStateTransaction().equals(StateTransaction.Completed)) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La transaccion ya se encuentra activa!", TypeStateResponse.Error));
+                    }
+                    ele.setId(transaction.getId());
+                    ele.setPrice(transaction.getPrice());
                     ele.setState(true);
                     ele.setStateTransaction(StateTransaction.Completed);
                     return repository.save(ele)
-                            .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
+                            .map(el -> new Response(TypeStateResponses.Success, "Transacción activada!"));
+
                 });
     }
 
     @Override
     public Mono<Response> invalidTransaction(String transaction) {
         return repository.findByTransactionIgnoreCase(transaction)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la transacción", TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la seleccion de la transacción", TypeStateResponse.Error)))
                 .flatMap(transactionEntity -> usersReactiveRepository.findById(transactionEntity.getId())
                         .flatMap(user -> {
                             transactionEntity.setId(transactionEntity.getId());
                             transactionEntity.setState(false);
+                            transactionEntity.setPrice(BigDecimal.ZERO);
                             transactionEntity.setStateTransaction(StateTransaction.Invalid);
                             return repository.save(transactionEntity)
                                     .flatMap(savedTransaction -> emailService.invalidTransaction(user.getFullName(), user.getEmail()))

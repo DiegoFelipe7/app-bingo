@@ -11,6 +11,5 @@ public interface UserRepository {
     Flux<References> getAllReferencesTeam(String token);
     Flux<Users> getAllUsers();
     Mono<Response> editUser(Users user);
-    Mono<Response> saveWallet(String token, String wallet);
     Mono<Users> getUserId(String token);
 }

@@ -16,12 +16,13 @@ public class TransactionMapper {
                 .walletType(transaction.getWalletType())
                 .transaction(transaction.getTransaction())
                 .price(transaction.getPrice())
+                .currency(transaction.getCurrency())
                 .urlTransaction(transaction.getUrlTransaction())
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
-                .createdAt(transaction.getCreateAt())
-                .updatedAt(transaction.getUpdateAt())
+                .createdAt(transaction.getCreatedAt())
+                .updatedAt(transaction.getUpdatedAt())
                 .build();
     }
 
@@ -31,12 +32,13 @@ public class TransactionMapper {
                 .walletType(transaction.getWalletType())
                 .transaction(transaction.getTransaction())
                 .price(transaction.getPrice())
+                .currency(transaction.getCurrency())
                 .urlTransaction(transaction.getUrlTransaction())
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
-                .createAt(transaction.getCreatedAt())
-                .updateAt(transaction.getUpdatedAt())
+                .createdAt(transaction.getCreatedAt())
+                .createdAt(transaction.getUpdatedAt())
                 .build();
     }
 }

@@ -4,6 +4,7 @@ import com.bingo.appbingo.domain.model.auth.Users;
 import com.bingo.appbingo.domain.model.users.References;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.users.*;
+import com.bingo.appbingo.domain.usecase.userwallet.SaveWalletUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -19,7 +20,6 @@ public class UsersHandler {
     private final GetUsersUseCase getUsersUseCase;
     private final GetUserIdUseCase getUserIdUseCase;
     private final EditUserUseCase editUserUseCase;
-    private final SaveWalletUseCase saveWalletUseCase;
     private final ReferencesUseCase referencesUseCase;
     private final ReferenceTeamUseCase referenceTeamUseCase;
 
@@ -55,14 +55,7 @@ public class UsersHandler {
 
 
 
-    public Mono<ServerResponse> saveWallet(ServerRequest serverRequest) {
-        String token = serverRequest.headers().firstHeader("Authorization");
-        return serverRequest.bodyToMono(Users.class)
-                .flatMap(ele -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(saveWalletUseCase.apply(token, ele.getWallet()), Response.class));
 
-    }
     public Mono<ServerResponse> getUserId(ServerRequest serverRequest){
         String token = serverRequest.headers().firstHeader("Authorization");
         return ServerResponse.ok()

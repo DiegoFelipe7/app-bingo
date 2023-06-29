@@ -41,5 +41,5 @@ public interface UsersReactiveRepository extends ReactiveCrudRepository<UsersEnt
 //            "WHERE level <= :level and username <> :username;")
 //    Flux<UsersEntity> findUserAndParents(@Param("username") String username , @Param("level") Integer level);
 
-    Mono<UsersEntity> findByWallet(String wallet);
+
 }

@@ -37,7 +37,6 @@ public class UsersEntity implements UserDetails {
     private Integer parentId;
     private Boolean status;
     private Integer level;
-    private String wallet;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

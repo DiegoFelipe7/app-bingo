@@ -163,7 +163,7 @@ public class MessageHtml {
                 "      }\n" +
                 "\n" +
                 "      img {\n" +
-                "        height: auto;\n" +
+                "        height: 250px;\n" +
                 "        max-width: 100%;\n" +
                 "        display: block;\n" +
                 "        margin: 0 auto;\n" +

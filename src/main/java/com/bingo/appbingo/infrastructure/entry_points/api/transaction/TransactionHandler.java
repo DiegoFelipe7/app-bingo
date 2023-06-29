@@ -1,6 +1,5 @@
 package com.bingo.appbingo.infrastructure.entry_points.api.transaction;
 
-import com.bingo.appbingo.domain.model.support.Support;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
 import com.bingo.appbingo.domain.model.transaction.TransactionDto;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -8,7 +7,6 @@ import com.bingo.appbingo.domain.usecase.transaction.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -19,7 +17,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TransactionHandler {
     private final GetAllTransactionUseCase getAllTransactionUseCase;
-    private final GetIdTransactionUseCase getIdTransactionUseCase;
+    private final GetTransactionIdUseCase getTransactionIdUseCase;
     private final SaveTransactionUseCase saveTransactionUseCase;
     private final ValidateTransactionUseCase validateTransactionUseCase;
 
@@ -36,7 +34,7 @@ public class TransactionHandler {
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(getIdTransactionUseCase.apply(id), TransactionDto.class);
+                .body(getTransactionIdUseCase.apply(id), TransactionDto.class);
     }
 
     public Mono<ServerResponse> saveTransaction(ServerRequest serverRequest) {
@@ -53,7 +51,7 @@ public class TransactionHandler {
         return serverRequest.bodyToMono(Transaction.class)
                 .flatMap(ele -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(validateTransactionUseCase.apply(transaction), Response.class));
+                        .body(validateTransactionUseCase.apply(transaction , ele), Response.class));
     }
 
 //    @PreAuthorize("hasAuthority('ROLE_ADMIN')")

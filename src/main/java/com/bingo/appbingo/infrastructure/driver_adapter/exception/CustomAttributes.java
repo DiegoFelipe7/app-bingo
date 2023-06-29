@@ -4,6 +4,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.exception;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -30,6 +31,13 @@ public class CustomAttributes extends DefaultErrorAttributes {
             errorAttributes.put("status", HttpStatus.BAD_REQUEST);
             errorAttributes.put("message", message);
             errorAttributes.put("typeStatus" , "Warning");
+        }
+        if(throwable instanceof TransientDataAccessResourceException){
+            String message = "Ocurrio un error en la actualizacion de alguno datos comunicate con el administrador!";
+            errorAttributes.put("status", HttpStatus.BAD_REQUEST);
+            errorAttributes.put("message", message);
+            errorAttributes.put("typeStatus" , "Warning");
+
         }
         if (throwable instanceof IllegalArgumentException) {
             String message = "Ocurrio un error en un argumento invalido comunica el administrador!";

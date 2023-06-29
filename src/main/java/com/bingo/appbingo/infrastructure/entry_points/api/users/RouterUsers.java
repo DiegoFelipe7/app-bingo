@@ -20,7 +20,6 @@ public class RouterUsers {
                 .GET(PATH+"getUser",usersHandler::getUserId)
                 .PUT(PATH+"edit",usersHandler::updateUser)
                // .POST(PATH+"seedEmail" , usersHandler::seedEmail)
-                .PATCH(PATH+"registerWallet" , usersHandler::saveWallet)
                 .build();
     }
 }

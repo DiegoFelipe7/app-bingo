@@ -20,6 +20,5 @@ jwt:
 evox:
   url: https://betbillions.com.co/
   email:
-    sender: corporate@evox.com.co
-    password : Evoteam2022
-    #password: ${PASSWORD_EMAIL}
+    sender: corporate@betbillions.com.co
+    password : Fara4020**

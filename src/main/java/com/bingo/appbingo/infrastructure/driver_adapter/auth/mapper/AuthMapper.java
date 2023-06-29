@@ -27,7 +27,6 @@ public class AuthMapper {
                 .parentId(usersEntity.getParentId())
                 .status(usersEntity.getStatus())
                 .level(usersEntity.getLevel())
-                .wallet(usersEntity.getWallet())
                 .createdAt(usersEntity.getCreatedAt())
                 .updatedAt(usersEntity.getUpdatedAt()).build();
     }
@@ -51,7 +50,6 @@ public class AuthMapper {
                 .parentId(users.getParentId())
                 .status(users.getStatus())
                 .level(users.getLevel())
-                .wallet(users.getWallet())
                 .createdAt(users.getCreatedAt())
                 .updatedAt(users.getUpdatedAt()).build();
     }

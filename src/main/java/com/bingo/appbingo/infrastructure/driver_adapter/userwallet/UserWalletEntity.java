@@ -1,32 +1,30 @@
-package com.bingo.appbingo.infrastructure.driver_adapter.transaction;
+package com.bingo.appbingo.infrastructure.driver_adapter.userwallet;
 
-import com.bingo.appbingo.domain.model.enums.StateTransaction;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@ToString
 @Builder(toBuilder = true)
-@Table(name = "transaction")
-public class TransactionEntity {
+@Table(name = "user_wallet")
+public class UserWalletEntity {
     @Id
     private Integer id;
-    private String walletType;
-    private String transaction;
-    private BigDecimal price;
-    private String currency;
-    private String urlTransaction;
+    private BigDecimal balance;
     private Integer userId;
-    private StateTransaction stateTransaction;
+    private String wallet;
     private Boolean state;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
+    public UserWalletEntity(BigDecimal balance, Integer userId) {
+        this.balance = balance;
+        this.userId = userId;
+    }
 }

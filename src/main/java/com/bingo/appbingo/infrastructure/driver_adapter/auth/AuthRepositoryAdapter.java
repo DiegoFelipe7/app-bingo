@@ -8,8 +8,11 @@ import com.bingo.appbingo.domain.model.auth.Users;
 import com.bingo.appbingo.domain.model.auth.gateways.AuthRepository;
 import com.bingo.appbingo.domain.model.session.Session;
 import com.bingo.appbingo.domain.model.session.gateway.SessionsRepository;
+import com.bingo.appbingo.domain.model.userwallet.UserWallet;
+import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
+import com.bingo.appbingo.domain.usecase.userwallet.SaveWalletUseCase;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.mapper.AuthMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
@@ -19,19 +22,24 @@ import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider
 import com.bingo.appbingo.infrastructure.driver_adapter.session.SessionEntity;
 import com.bingo.appbingo.infrastructure.driver_adapter.session.SessionRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.session.mapper.SessionMapper;
+import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletEntity;
+import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletReactiveRepository;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
 public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, AuthReactiveRepository> implements AuthRepository, SessionsRepository {
     private final SessionRepository sessionRepository;
+    private final UserWalletReactiveRepository userWalletReactiveRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     @Value("${evox.url}")
@@ -39,12 +47,13 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
 
     private final JwtProvider jwtProvider;
 
-    public AuthRepositoryAdapter(AuthReactiveRepository repository, SessionRepository sessionsRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+    public AuthRepositoryAdapter(AuthReactiveRepository repository, SessionRepository sessionsRepository, UserWalletReactiveRepository userWalletReactiveRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Users.UsersBuilder.class).build());
         this.sessionRepository = sessionsRepository;
+        this.userWalletReactiveRepository = userWalletReactiveRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
-        this.emailService=emailService;
+        this.emailService = emailService;
     }
 
 
@@ -61,6 +70,7 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
                 })
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Contraseña invalida!", TypeStateResponse.Error)));
     }
+
     @Override
     public Mono<Session> entryRegister(Login login) {
         return repository.findByEmailIgnoreCase(login.getEmail())
@@ -83,15 +93,23 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
         return referral(user);
     }
 
+
     @Override
     public Mono<Response> referral(Users user) {
-       return repository.findByUsername(Utils.extractUsername(user.getInvitationLink()))
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El link de referido no existe!", TypeStateResponse.Warning)))
+        String invitationLinkUsername = Utils.extractUsername(user.getInvitationLink());
+        return repository.findByUsername(invitationLinkUsername)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El enlace de referido no existe!", TypeStateResponse.Warning)))
                 .flatMap(parent -> {
                     user.setParentId(parent.getId());
-                    return repository.save(AuthMapper.usersAUserEntity(user)).flatMap(ele ->
-                            emailService.sendEmailWelcome(ele.getFullName(), ele.getEmail(), ele.getToken())
-                                    .then(Mono.just(new Response(TypeStateResponses.Success, "Hemos enviado un correo electrónico para la activacion de tu cuenta!" + ele.getFullName()))));
+                    UsersEntity userEntity = AuthMapper.usersAUserEntity(user);
+                    UserWalletEntity userWallet = new UserWalletEntity(BigDecimal.ZERO, null);
+                    return repository.save(userEntity)
+                            .flatMap(savedUser -> {
+                                userWallet.setUserId(savedUser.getId());
+                                return userWalletReactiveRepository.save(userWallet);
+                            })
+                            .then(emailService.sendEmailWelcome(userEntity.getFullName(), userEntity.getEmail(), userEntity.getToken()))
+                            .thenReturn(new Response(TypeStateResponses.Success, "Se ha enviado un correo electrónico para la activación de tu cuenta."));
                 });
     }
 
@@ -101,10 +119,9 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
     }
 
 
-
     @Override
     public Mono<Response> activateAccount(String token) {
-          return repository.findByToken(token)
+        return repository.findByToken(token)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El token es invalido!", TypeStateResponse.Error)))
                 .filter(user -> !user.getStatus())
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La cuenta ya esta activa!", TypeStateResponse.Warning)))

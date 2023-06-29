@@ -28,7 +28,6 @@ public class Users {
     private Integer parentId;
     private Boolean status;
     private Integer level;
-    private String wallet;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

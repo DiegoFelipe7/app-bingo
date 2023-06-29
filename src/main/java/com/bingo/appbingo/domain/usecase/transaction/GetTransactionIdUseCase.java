@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class GetIdTransactionUseCase implements Function<Integer , Mono<TransactionDto>> {
+public class GetTransactionIdUseCase implements Function<Integer , Mono<TransactionDto>> {
     private final TransactionRepository taTransactionRepository;
 
     @Override

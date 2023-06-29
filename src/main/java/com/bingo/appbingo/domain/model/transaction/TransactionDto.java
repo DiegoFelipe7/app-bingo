@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class TransactionDto extends Transaction{
     private String username;
     private String email;

@@ -67,20 +67,7 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users , Us
                 });
     }
 
-    @Override
-    public Mono<Response> saveWallet(String token, String wallet) {
-        String username = jwtProvider.extractToken(token);
-        return repository.findByWallet(wallet)
-                .flatMap(err -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Esta billetera ya está registrada!", TypeStateResponse.Error)))
-                .switchIfEmpty(repository.findByUsername(username)
-                        .flatMap(ele -> {
-                            ele.setId(ele.getId());
-                            ele.setWallet(wallet);
-                            return repository.save(ele)
-                                    .thenReturn(new Response(TypeStateResponses.Success, "Billetera registrada"))
-                                    .onErrorResume(throwable -> Mono.just(new Response(TypeStateResponses.Error, "Error al guardar la billetera")));
-                        })).cast(Response.class);
-    }
+
 
     @Override
     public Mono<Users> getUserId(String token) {

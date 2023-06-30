@@ -1,6 +1,6 @@
 package com.bingo.appbingo.domain.usecase.passsword;
 
-import com.bingo.appbingo.domain.model.passwordReset.gateway.PasswordResetRepository;
+import com.bingo.appbingo.domain.model.passwordreset.gateway.PasswordResetRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

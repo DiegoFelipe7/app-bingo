@@ -1,4 +1,4 @@
-package com.bingo.appbingo.domain.model.passwordReset;
+package com.bingo.appbingo.domain.model.passwordreset;
 import lombok.*;
 import java.time.LocalDateTime;
 

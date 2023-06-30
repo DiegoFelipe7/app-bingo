@@ -63,20 +63,23 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
 
     @Override
     public Mono<Void> increaseBalance(Integer userId, BigDecimal quantity) {
-
-       return repository.findByUserId(userId).log()
+       return repository.findByUserId(userId)
+               .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Usuario invalido" , TypeStateResponse.Error)))
                 .flatMap(ele -> {
                     ele.setBalance(ele.getBalance().add(quantity));
                     ele.setUpdatedAt(LocalDateTime.now());
-                    return repository.save(ele).log();
+                    return repository.save(ele);
                 }).then();
     }
 
     @Override
     public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity) {
-        return repository.findByUserId(userId).flatMap(ele -> {
-            ele.decreaseBalance(quantity);
-            return repository.save(ele);
-        }).then();
+        return repository.findByUserId(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Usuario invalido" , TypeStateResponse.Error)))
+                .flatMap(ele -> {
+                    ele.setBalance(ele.getBalance().subtract(quantity));
+                    ele.setUpdatedAt(LocalDateTime.now());
+                    return repository.save(ele);
+                }).then();
     }
 }

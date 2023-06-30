@@ -1,4 +1,4 @@
-package com.bingo.appbingo.domain.model.passwordReset.gateway;
+package com.bingo.appbingo.domain.model.passwordreset.gateway;
 
 import com.bingo.appbingo.domain.model.auth.Login;
 import com.bingo.appbingo.domain.model.utils.Response;

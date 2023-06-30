@@ -28,10 +28,4 @@ public class UserWalletEntity {
         this.userId = userId;
     }
 
-    public void increaseBalance(BigDecimal amount) {
-        balance = balance.add(amount);
-    }
-    public void decreaseBalance(BigDecimal amount) {
-        balance = balance.subtract(amount);
-    }
 }

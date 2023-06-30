@@ -1,8 +1,8 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.password;
 
 import com.bingo.appbingo.domain.model.auth.Login;
-import com.bingo.appbingo.domain.model.passwordReset.PasswordReset;
-import com.bingo.appbingo.domain.model.passwordReset.gateway.PasswordResetRepository;
+import com.bingo.appbingo.domain.model.passwordreset.PasswordReset;
+import com.bingo.appbingo.domain.model.passwordreset.gateway.PasswordResetRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.AuthReactiveRepository;

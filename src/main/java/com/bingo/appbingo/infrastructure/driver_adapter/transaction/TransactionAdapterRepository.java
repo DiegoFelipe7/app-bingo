@@ -1,6 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.transaction;
 
 import com.bingo.appbingo.domain.model.enums.StateTransaction;
+import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
 import com.bingo.appbingo.domain.model.transaction.TransactionDto;
 import com.bingo.appbingo.domain.model.transaction.gateway.TransactionRepository;
@@ -28,13 +29,15 @@ import java.time.LocalDateTime;
 public class TransactionAdapterRepository extends ReactiveAdapterOperations<Transaction, TransactionEntity, Integer, TransactionReactiveRepository> implements TransactionRepository {
     private final UsersReactiveRepository usersReactiveRepository;
     private final UserWalletRepository userWalletRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
     private final JwtProvider jwtProvider;
     private final EmailService emailService;
 
-    public TransactionAdapterRepository(TransactionReactiveRepository repository, UserWalletRepository userWalletRepository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, EmailService emailService) {
+    public TransactionAdapterRepository(TransactionReactiveRepository repository, UserWalletRepository userWalletRepository, PaymentHistoryRepository paymentHistoryRepository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, EmailService emailService) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Transaction.TransactionBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.userWalletRepository = userWalletRepository;
+        this.paymentHistoryRepository=paymentHistoryRepository;
         this.jwtProvider = jwtProvider;
         this.emailService = emailService;
     }
@@ -84,11 +87,15 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                     ele.setUpdatedAt(LocalDateTime.now());
                     ele.setStateTransaction(StateTransaction.Completed);
                     return repository.save(ele)
-                            .map(res -> userWalletRepository.increaseBalance(res.getUserId(), res.getPrice()))
+                            .flatMap(res -> {
+                                Mono<Void> updateUserWallet = userWalletRepository.increaseBalance(res.getUserId(), res.getPrice());
+                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice());
+                                return Mono.when(updateUserWallet, savePaymentHistory).log();
+                            })
                             .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
-
                 });
     }
+
 
     @Override
     public Mono<Response> invalidTransaction(String transaction) {

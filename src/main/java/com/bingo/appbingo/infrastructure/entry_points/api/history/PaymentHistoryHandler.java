@@ -1,7 +1,8 @@
 package com.bingo.appbingo.infrastructure.entry_points.api.history;
 
 import com.bingo.appbingo.domain.model.history.PaymentHistory;
-import com.bingo.appbingo.domain.usecase.history.GetAllFilterHistory;
+import com.bingo.appbingo.domain.usecase.history.GetAllFilterHistoryUseCase;
+import com.bingo.appbingo.domain.usecase.history.GetAllPaymentHistoryUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -14,12 +15,21 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RequiredArgsConstructor
 public class PaymentHistoryHandler {
-    private final GetAllFilterHistory getAllFilterHistory;
-
+    private final GetAllPaymentHistoryUseCase getAllPaymentHistoryUseCase;
+    private final GetAllFilterHistoryUseCase getAllFilterHistoryUseCase;
+    public Mono<ServerResponse> getAllPaymentHistory(ServerRequest serverRequest){
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(getAllPaymentHistoryUseCase.apply(token), PaymentHistory.class);
+    }
     public Mono<ServerResponse> getAllFilterHistory(ServerRequest serverRequest){
         String page = serverRequest.queryParam("filter").orElse("");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(getAllFilterHistory.apply(page), PaymentHistory.class);
+                .body(getAllFilterHistoryUseCase.apply(page), PaymentHistory.class);
     }
 }
+
+
+

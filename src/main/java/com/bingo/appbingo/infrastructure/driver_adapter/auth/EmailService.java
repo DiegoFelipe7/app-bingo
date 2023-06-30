@@ -73,7 +73,6 @@ public class EmailService {
     public Mono<Void> invalidTransaction(String fullName, String email) {
         MimeMessage message = mailSender.createMimeMessage();
         String invalid = MessageHtml.invalidTransaction(fullName);
-
         return Mono.fromRunnable(() -> {
             try {
                 message.setSubject("Error en hash de transacción");

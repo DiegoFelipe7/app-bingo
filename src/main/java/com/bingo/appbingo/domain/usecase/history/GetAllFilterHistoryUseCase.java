@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class GetAllFilterHistory implements Function<String , Flux<PaymentHistory>> {
+public class GetAllFilterHistoryUseCase implements Function<String , Flux<PaymentHistory>> {
    private final PaymentHistoryRepository paymentHistoryRepository;
     @Override
     public Flux<PaymentHistory> apply(String type) {

@@ -10,7 +10,7 @@ public class Utils {
     }
 
     public static String uid() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        return UUID.randomUUID().toString();
     }
 
     public static Double bonus(Integer level) {

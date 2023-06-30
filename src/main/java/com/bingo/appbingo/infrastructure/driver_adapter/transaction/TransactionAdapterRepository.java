@@ -8,6 +8,7 @@ import com.bingo.appbingo.domain.model.transaction.gateway.TransactionRepository
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
+import com.bingo.appbingo.domain.usecase.userwallet.SaveWalletUseCase;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.EmailService;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
@@ -53,6 +54,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
     @Override
     public Flux<TransactionDto> getAllTransaction() {
         return repository.findAll()
+                .filter(data->data.getStateTransaction().equals(StateTransaction.Pending))
                 .flatMap(ele -> usersReactiveRepository.findById(ele.getId())
                         .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(), ele.getTransaction(), ele.getPrice(), ele.getUrlTransaction(), ele.getStateTransaction(), ele.getState(), data.getUsername(), data.getEmail())));
     }
@@ -99,15 +101,15 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
 
     @Override
     public Mono<Response> invalidTransaction(String transaction) {
-        return repository.findByTransactionIgnoreCase(transaction)
+        return repository.findByTransactionIgnoreCase(transaction).log()
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la seleccion de la transacción", TypeStateResponse.Error)))
-                .flatMap(transactionEntity -> usersReactiveRepository.findById(transactionEntity.getId())
+                .flatMap(transactionEntity -> usersReactiveRepository.findById(transactionEntity.getUserId())
                         .flatMap(user -> {
                             transactionEntity.setId(transactionEntity.getId());
                             transactionEntity.setState(false);
                             transactionEntity.setPrice(BigDecimal.ZERO);
                             transactionEntity.setStateTransaction(StateTransaction.Invalid);
-                            return repository.save(transactionEntity)
+                            return repository.save(transactionEntity).log()
                                     .flatMap(savedTransaction -> emailService.invalidTransaction(user.getFullName(), user.getEmail()))
                                     .thenReturn(new Response(TypeStateResponses.Success, "Transacción invalidada"));
                         })

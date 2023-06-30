@@ -35,4 +35,19 @@ public class UserWalletHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(existsWalletUseCase.apply(token), Boolean.class);
     }
+
+    public Mono<ServerResponse> increaseBalance(ServerRequest serverRequest){
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(existsWalletUseCase.apply(token), Boolean.class);
+    }
+
+    public Mono<ServerResponse> decreaseBalance(ServerRequest serverRequest){
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(existsWalletUseCase.apply(token), Boolean.class);
+    }
+
 }

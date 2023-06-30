@@ -4,6 +4,7 @@ import com.bingo.appbingo.domain.model.enums.StateTransaction;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
 import com.bingo.appbingo.domain.model.transaction.TransactionDto;
 import com.bingo.appbingo.domain.model.transaction.gateway.TransactionRepository;
+import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.EmailService;
@@ -20,17 +21,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Repository
 public class TransactionAdapterRepository extends ReactiveAdapterOperations<Transaction, TransactionEntity, Integer, TransactionReactiveRepository> implements TransactionRepository {
     private final UsersReactiveRepository usersReactiveRepository;
+    private final UserWalletRepository userWalletRepository;
     private final JwtProvider jwtProvider;
     private final EmailService emailService;
 
-    public TransactionAdapterRepository(TransactionReactiveRepository repository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, EmailService emailService) {
+    public TransactionAdapterRepository(TransactionReactiveRepository repository, UserWalletRepository userWalletRepository, ObjectMapper mapper, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, EmailService emailService) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Transaction.TransactionBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
+        this.userWalletRepository = userWalletRepository;
         this.jwtProvider = jwtProvider;
         this.emailService = emailService;
     }
@@ -77,9 +81,11 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                     ele.setId(transaction.getId());
                     ele.setPrice(transaction.getPrice());
                     ele.setState(true);
+                    ele.setUpdatedAt(LocalDateTime.now());
                     ele.setStateTransaction(StateTransaction.Completed);
                     return repository.save(ele)
-                            .map(el -> new Response(TypeStateResponses.Success, "Transacción activada!"));
+                            .map(res -> userWalletRepository.increaseBalance(res.getUserId(), res.getPrice()))
+                            .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
 
                 });
     }

@@ -17,6 +17,8 @@ public class RouterUserWallet {
         return RouterFunctions.route()
                 .GET(PATH+"exist" , userWalletHandler::existWallet)
                 .PATCH(PATH+"registerWallet" , userWalletHandler::saveWallet)
+                .PATCH(PATH+"increaseBalance" , userWalletHandler::increaseBalance)
+                .PATCH(PATH+"decreaseBalance",userWalletHandler::decreaseBalance)
                 .build();
     }
 

@@ -1,6 +1,5 @@
 package com.bingo.appbingo.domain.model.userwallet.gateway;
 
-import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 
 import com.bingo.appbingo.domain.model.utils.Response;
 import reactor.core.publisher.Mono;

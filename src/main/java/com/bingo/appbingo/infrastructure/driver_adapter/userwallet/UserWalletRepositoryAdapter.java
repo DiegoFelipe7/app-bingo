@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Repository
@@ -62,11 +63,20 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
 
     @Override
     public Mono<Void> increaseBalance(Integer userId, BigDecimal quantity) {
-        return null;
+
+       return repository.findByUserId(userId).log()
+                .flatMap(ele -> {
+                    ele.setBalance(ele.getBalance().add(quantity));
+                    ele.setUpdatedAt(LocalDateTime.now());
+                    return repository.save(ele).log();
+                }).then();
     }
 
     @Override
     public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity) {
-        return null;
+        return repository.findByUserId(userId).flatMap(ele -> {
+            ele.decreaseBalance(quantity);
+            return repository.save(ele);
+        }).then();
     }
 }

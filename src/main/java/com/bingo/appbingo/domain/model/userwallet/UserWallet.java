@@ -11,10 +11,12 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 public class UserWallet {
     private Integer id;
+    private String red;
     private BigDecimal balance;
     private Integer userId;
     private String wallet;
     private Boolean state;
+    private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

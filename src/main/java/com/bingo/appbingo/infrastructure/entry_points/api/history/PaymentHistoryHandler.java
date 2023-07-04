@@ -24,10 +24,12 @@ public class PaymentHistoryHandler {
                 .body(getAllPaymentHistoryUseCase.apply(token), PaymentHistory.class);
     }
     public Mono<ServerResponse> getAllFilterHistory(ServerRequest serverRequest){
+
+        String token = serverRequest.headers().firstHeader("Authorization");
         String page = serverRequest.queryParam("filter").orElse("");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(getAllFilterHistoryUseCase.apply(page), PaymentHistory.class);
+                .body(getAllFilterHistoryUseCase.apply(page,token), PaymentHistory.class);
     }
 }
 

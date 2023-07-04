@@ -22,6 +22,7 @@ public class UsersHandler {
     private final EditUserUseCase editUserUseCase;
     private final ReferencesUseCase referencesUseCase;
     private final ReferenceTeamUseCase referenceTeamUseCase;
+    private final GetUserPanelUseCase getUserPanelUseCase;
 
     public Mono<ServerResponse> references(ServerRequest serverRequest) {
         String token = serverRequest.headers().firstHeader("Authorization");
@@ -54,6 +55,12 @@ public class UsersHandler {
     }
 
 
+    public Mono<ServerResponse> getUserPanel(ServerRequest serverRequest){
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(getUserPanelUseCase.apply(token),Users.class);
+    }
 
 
     public Mono<ServerResponse> getUserId(ServerRequest serverRequest){

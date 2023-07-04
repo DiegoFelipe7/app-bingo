@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Table(name = "users")
+@ToString
 public class UsersEntity implements UserDetails {
     @Id
     private Integer id;

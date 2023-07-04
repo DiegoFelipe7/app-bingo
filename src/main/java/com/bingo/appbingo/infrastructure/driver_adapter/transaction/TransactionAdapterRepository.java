@@ -70,7 +70,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                             transaction.setStateTransaction(StateTransaction.Pending);
                             return repository.save(TransactionMapper.transactionATransactionEntity(transaction));
                         })
-                        .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Transacción enviada")))
+                        .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Tu transacción sera validada dentro de una hora")))
                 ).cast(Response.class);
     }
 

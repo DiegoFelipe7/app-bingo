@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.helper;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,6 +22,10 @@ public class Utils {
                 4, 0.1
         );
         return bonusMap.getOrDefault(level, 0.0);
+    }
+
+    public static LocalDateTime starDate(String starDate){
+        return null;
     }
 
 }

@@ -6,13 +6,13 @@ import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
-public class GetAllFilterHistoryUseCase implements Function<String , Flux<PaymentHistory>> {
+public class GetAllFilterHistoryUseCase implements BiFunction<String ,String , Flux<PaymentHistory>> {
    private final PaymentHistoryRepository paymentHistoryRepository;
     @Override
-    public Flux<PaymentHistory> apply(String type) {
-        return paymentHistoryRepository.filterPaymentHistory(type);
+    public Flux<PaymentHistory> apply(String type, String token) {
+        return paymentHistoryRepository.filterPaymentHistory(type,token);
     }
 }

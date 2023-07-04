@@ -18,6 +18,7 @@ public class RouterUsers {
                 .GET(PATH +"referrals", usersHandler::references)
                 .GET(PATH +"referrals/team", usersHandler::referencesTeam)
                 .GET(PATH+"getUser",usersHandler::getUserId)
+                .GET(PATH+"panel",usersHandler::getUserPanel)
                 .PUT(PATH+"edit",usersHandler::updateUser)
                // .POST(PATH+"seedEmail" , usersHandler::seedEmail)
                 .build();

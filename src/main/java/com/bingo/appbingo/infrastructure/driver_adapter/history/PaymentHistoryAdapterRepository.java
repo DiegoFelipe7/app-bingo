@@ -16,18 +16,19 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 
 @Repository
-public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<PaymentHistory, PaymentHistoryEntity , Integer , PaymentHistoryReactiveRepository> implements PaymentHistoryRepository {
+public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<PaymentHistory, PaymentHistoryEntity, Integer, PaymentHistoryReactiveRepository> implements PaymentHistoryRepository {
     private final UsersReactiveRepository usersReactiveRepository;
     private final JwtProvider jwtProvider;
-    public PaymentHistoryAdapterRepository(PaymentHistoryReactiveRepository repository,UsersReactiveRepository usersReactiveRepository , JwtProvider jwtProvider, ObjectMapper mapper) {
-        super(repository, mapper, d->mapper.mapBuilder(d,PaymentHistory.PaymentHistoryBuilder.class).build());
-        this.usersReactiveRepository=usersReactiveRepository;
-        this.jwtProvider =jwtProvider;
+
+    public PaymentHistoryAdapterRepository(PaymentHistoryReactiveRepository repository, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, ObjectMapper mapper) {
+        super(repository, mapper, d -> mapper.mapBuilder(d, PaymentHistory.PaymentHistoryBuilder.class).build());
+        this.usersReactiveRepository = usersReactiveRepository;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
     public Mono<Void> saveHistory(Integer userId, BigDecimal balance) {
-        PaymentHistory history= new PaymentHistory(Utils.uid(), balance,userId, TypeHistory.Transaction);
+        PaymentHistory history = new PaymentHistory(Utils.uid(), balance, userId, TypeHistory.Transaction);
         return repository.save(PaymentHistoryMapper.paymentHistoryAPaymentHistoryEntity(history)).then();
 
     }
@@ -43,9 +44,14 @@ public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<P
     }
 
     @Override
-    public Flux<PaymentHistory> filterPaymentHistory(String type) {
-        return repository.findAll().filter(ele->ele.getTypeHistory().equals(type))
+    public Flux<PaymentHistory> filterPaymentHistory(String type, String token) {
+        String username = jwtProvider.extractToken(token);
+        return usersReactiveRepository.findByUsername(username)
+                .flatMapMany(ele -> repository.findAll()
+                        .filter(data -> data.getUserId().equals(ele.getId()))
+                        .filter(res -> res.getTypeHistory().equals(TypeHistory.Bingo)))
                 .map(PaymentHistoryMapper::paymentHistoryEntityAPaymentHistory);
+
     }
 
 

@@ -16,16 +16,18 @@ import java.time.LocalDateTime;
 public class UserWalletEntity {
     @Id
     private Integer id;
+    private String red;
     private BigDecimal balance;
     private Integer userId;
     private String wallet;
     private Boolean state;
+    private String currency;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public UserWalletEntity(BigDecimal balance, Integer userId) {
+    public UserWalletEntity(String red,BigDecimal balance) {
+        this.red=red;
         this.balance = balance;
-        this.userId = userId;
     }
 
 }

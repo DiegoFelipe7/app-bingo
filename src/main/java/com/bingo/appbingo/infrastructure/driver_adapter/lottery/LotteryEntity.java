@@ -1,6 +1,8 @@
-package com.bingo.appbingo.domain.model.lottery;
+package com.bingo.appbingo.infrastructure.driver_adapter.lottery;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 @Getter
@@ -9,7 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 @Builder(toBuilder = true)
-public class Lottery {
+@Table(name = "lottery")
+public class LotteryEntity {
+    @Id
     private Integer id;
     private LocalDateTime createdAt;
     private LocalDateTime startDate;

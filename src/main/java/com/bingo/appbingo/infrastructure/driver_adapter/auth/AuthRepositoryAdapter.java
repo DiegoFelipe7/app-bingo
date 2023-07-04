@@ -102,7 +102,7 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
                 .flatMap(parent -> {
                     user.setParentId(parent.getId());
                     UsersEntity userEntity = AuthMapper.usersAUserEntity(user);
-                    UserWalletEntity userWallet = new UserWalletEntity(BigDecimal.ZERO, null);
+                    UserWalletEntity userWallet = new UserWalletEntity("TRC",BigDecimal.ZERO);
                     return repository.save(userEntity)
                             .flatMap(savedUser -> {
                                 userWallet.setUserId(savedUser.getId());

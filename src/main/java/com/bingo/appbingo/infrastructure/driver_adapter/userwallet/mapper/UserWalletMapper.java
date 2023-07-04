@@ -11,9 +11,11 @@ public class UserWalletMapper {
     public static UserWallet userWalletEntityAUserWallet(UserWalletEntity userWalletEntity){
         return UserWallet.builder()
                 .id(userWalletEntity.getId())
+                .red(userWalletEntity.getRed())
                 .balance(userWalletEntity.getBalance())
                 .userId(userWalletEntity.getUserId())
                 .wallet(userWalletEntity.getWallet())
+                .currency(userWalletEntity.getCurrency())
                 .state(userWalletEntity.getState())
                 .createdAt(userWalletEntity.getCreatedAt())
                 .updatedAt(userWalletEntity.getUpdatedAt())
@@ -22,9 +24,11 @@ public class UserWalletMapper {
     public static UserWalletEntity userWalletAUserWalletEntity(UserWallet userWallet){
         return UserWalletEntity.builder()
                 .id(userWallet.getId())
+                .red(userWallet.getRed())
                 .balance(userWallet.getBalance())
                 .userId(userWallet.getUserId())
                 .wallet(userWallet.getWallet())
+                .currency(userWallet.getCurrency())
                 .state(userWallet.getState())
                 .createdAt(userWallet.getCreatedAt())
                 .updatedAt(userWallet.getUpdatedAt())

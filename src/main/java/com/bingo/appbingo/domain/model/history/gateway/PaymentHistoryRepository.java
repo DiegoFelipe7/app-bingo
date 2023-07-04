@@ -10,6 +10,6 @@ public interface PaymentHistoryRepository {
     Mono<Void> saveHistory(Integer userId, BigDecimal balance);
     Flux<PaymentHistory> listPayment(String token);
 
-    Flux<PaymentHistory> filterPaymentHistory(String type);
+    Flux<PaymentHistory> filterPaymentHistory(String type , String token);
 
 }

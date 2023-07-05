@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class LotteryEntity {
     @Id
     private Integer id;
+    private String key;
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;

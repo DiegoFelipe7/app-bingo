@@ -3,9 +3,13 @@ package com.bingo.appbingo.infrastructure.driver_adapter.round;
 import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.round.mapper.RoundMapper;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -15,7 +19,17 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round , Ro
     }
 
     @Override
-    public Mono<Void> saveRounds(List<Round> round) {
-        return null;
-    }
+    public Mono<Void> saveRounds(List<Round> rounds, Integer lotteryId) {
+        return Flux.fromIterable(rounds)
+                .index()
+                .concatMap(tuple -> {
+                    Integer number = tuple.getT1().intValue() + 1;
+                    Round round = tuple.getT2();
+                    round.setNumberRound(number);
+                    round.setIdLottery(lotteryId);
+                    return repository.save(RoundMapper.roundEntity(round));
+                })
+                .then();
+   }
+
 }

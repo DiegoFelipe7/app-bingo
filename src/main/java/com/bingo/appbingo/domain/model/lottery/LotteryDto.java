@@ -14,6 +14,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class LotteryDto {
     private Integer id;
+    private String key;
     private LocalDateTime createdAt;
     private String  startDate;
     private Integer numberOfRounds;

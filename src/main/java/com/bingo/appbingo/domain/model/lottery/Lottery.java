@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 public class Lottery {
     private Integer id;
+    private String key;
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;

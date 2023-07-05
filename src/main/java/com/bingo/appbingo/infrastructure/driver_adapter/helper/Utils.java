@@ -1,6 +1,8 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.helper;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,7 +27,8 @@ public class Utils {
     }
 
     public static LocalDateTime starDate(String starDate){
-        return null;
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.US);
+        return LocalDateTime.parse(starDate,dateFormatter);
     }
 
 }

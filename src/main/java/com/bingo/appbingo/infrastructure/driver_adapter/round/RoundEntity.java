@@ -1,6 +1,8 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.round;
 
+import com.bingo.appbingo.domain.model.enums.TypeLottery;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
@@ -13,15 +15,15 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 @Table(name = "round")
 public class RoundEntity {
+    @Id
     private Integer id;
-    private String typeGame;
+    private Integer idLottery;
+    private TypeLottery typeGame;
     private Integer numberRound;
     private BigDecimal award;
     private Integer userWinner;
     private Boolean completed;
 
-    public RoundEntity(String typeGame, BigDecimal award) {
-        this.typeGame = typeGame;
-        this.award = award;
-    }
+
+
 }

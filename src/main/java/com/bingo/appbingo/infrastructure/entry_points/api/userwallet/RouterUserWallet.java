@@ -15,10 +15,8 @@ public class RouterUserWallet {
     @Bean
     RouterFunction<ServerResponse> userWalletRouter(UserWalletHandler userWalletHandler){
         return RouterFunctions.route()
-                .GET(PATH+"exist" , userWalletHandler::existWallet)
+                .GET(PATH+"wallet" , userWalletHandler::getWalletUser)
                 .PATCH(PATH+"registerWallet" , userWalletHandler::saveWallet)
-                .PATCH(PATH+"increaseBalance" , userWalletHandler::increaseBalance)
-                .PATCH(PATH+"decreaseBalance",userWalletHandler::decreaseBalance)
                 .build();
     }
 

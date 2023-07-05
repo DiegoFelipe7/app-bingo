@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface RoundRepository {
-    Mono<Void> saveRounds(List<Round> round);
+    Mono<Void> saveRounds(List<Round> round , Integer lotteryId);
 }

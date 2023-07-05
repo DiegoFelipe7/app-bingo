@@ -50,21 +50,21 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     }
 
 
+
+
     @Override
-    public Mono<Boolean> existWallet(String token) {
+    public Mono<UserWallet> getWalletUser(String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrió un error con el token", TypeStateResponse.Error)))
-                .flatMap(user -> repository.findByUserId(user.getId()))
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la creacion de la billetera del usuario", TypeStateResponse.Error)))
-                .map(valid -> valid.getWallet() != null);
+                .flatMap(user -> repository.findByUserId(user.getId()).map(UserWalletMapper::userWalletEntityAUserWallet));
 
     }
 
     @Override
     public Mono<Void> increaseBalance(Integer userId, BigDecimal quantity) {
-       return repository.findByUserId(userId)
-               .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Usuario invalido" , TypeStateResponse.Error)))
+        return repository.findByUserId(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
                     ele.setBalance(ele.getBalance().add(quantity));
                     ele.setUpdatedAt(LocalDateTime.now());
@@ -75,7 +75,7 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     @Override
     public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity) {
         return repository.findByUserId(userId)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Usuario invalido" , TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
                     ele.setBalance(ele.getBalance().subtract(quantity));
                     ele.setUpdatedAt(LocalDateTime.now());

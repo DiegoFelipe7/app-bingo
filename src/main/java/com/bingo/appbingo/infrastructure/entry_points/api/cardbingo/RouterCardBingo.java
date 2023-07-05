@@ -1,20 +1,20 @@
-package com.bingo.appbingo.infrastructure.entry_points.api.lottery;
+package com.bingo.appbingo.infrastructure.entry_points.api.cardbingo;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
 @Configuration
-public class RouterLottery {
-    private final String PATH="api/lottery/";
+@Slf4j
+public class RouterCardBingo {
+    private static final String PATH = "api/cardBingo/";
+
     @Bean
-    RouterFunction<ServerResponse> lotteryRouter(LotteryHandler lotteryHandler){
+    RouterFunction<ServerResponse> cardBingoRouter(CardBingoHandler cardBingoHandler) {
         return RouterFunctions.route()
-                .GET(PATH+"list" , lotteryHandler::getLottery)
-                .POST(PATH+"save",lotteryHandler::saveLottery)
+                .GET(PATH+"card" , cardBingoHandler::getAllCardBingo)
                 .build();
     }
-
 }

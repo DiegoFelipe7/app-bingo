@@ -1,0 +1,17 @@
+package com.bingo.appbingo.domain.usecase.lottery;
+
+import com.bingo.appbingo.domain.model.lottery.Lottery;
+import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
+import java.util.function.Supplier;
+
+@RequiredArgsConstructor
+public class GetLotteryIdUseCase implements Supplier<Mono<Lottery>> {
+    private final LotteryRepository lotteryRepository;
+    @Override
+    public Mono<Lottery> get() {
+        return lotteryRepository.getLotteryId();
+    }
+}

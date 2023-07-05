@@ -38,7 +38,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
         super(repository, mapper, d -> mapper.mapBuilder(d, Transaction.TransactionBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.userWalletRepository = userWalletRepository;
-        this.paymentHistoryRepository=paymentHistoryRepository;
+        this.paymentHistoryRepository = paymentHistoryRepository;
         this.jwtProvider = jwtProvider;
         this.emailService = emailService;
     }
@@ -47,16 +47,24 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
     public Mono<TransactionDto> getTransactionId(Integer id) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el id de la transacción", TypeStateResponse.Warning)))
-                .flatMap(ele -> usersReactiveRepository.findById(ele.getId())
-                        .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(), ele.getTransaction(), ele.getPrice(), ele.getUrlTransaction(), ele.getStateTransaction(), ele.getState(), data.getUsername(), data.getEmail())));
+                .flatMap(ele -> usersReactiveRepository.findById(ele.getUserId())
+                        .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(),
+                                ele.getTransaction(), ele.getPrice(), ele.getCurrency(),
+                                ele.getUrlTransaction(), ele.getStateTransaction(),
+                                ele.getState(), ele.getCreatedAt(), data.getUsername(),
+                                data.getEmail())));
     }
 
     @Override
     public Flux<TransactionDto> getAllTransaction() {
         return repository.findAll()
-                .filter(data->data.getStateTransaction().equals(StateTransaction.Pending))
-                .flatMap(ele -> usersReactiveRepository.findById(ele.getId())
-                        .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(), ele.getTransaction(), ele.getPrice(), ele.getUrlTransaction(), ele.getStateTransaction(), ele.getState(), data.getUsername(), data.getEmail())));
+                .filter(data -> data.getStateTransaction().equals(StateTransaction.Pending))
+                .flatMap(ele -> usersReactiveRepository.findById(ele.getUserId())
+                        .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(),
+                                        ele.getTransaction(), ele.getPrice(), ele.getCurrency(),
+                                        ele.getUrlTransaction(), ele.getStateTransaction(),
+                                        ele.getState(), ele.getCreatedAt(), data.getUsername(),
+                                        data.getEmail())));
     }
 
     @Override
@@ -92,7 +100,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                             .flatMap(res -> {
                                 Mono<Void> updateUserWallet = userWalletRepository.increaseBalance(res.getUserId(), res.getPrice());
                                 Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice());
-                                return Mono.when(updateUserWallet, savePaymentHistory).log();
+                                return Mono.when(updateUserWallet, savePaymentHistory);
                             })
                             .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
                 });

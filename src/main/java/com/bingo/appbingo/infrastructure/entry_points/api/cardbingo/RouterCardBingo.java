@@ -15,6 +15,7 @@ public class RouterCardBingo {
     RouterFunction<ServerResponse> cardBingoRouter(CardBingoHandler cardBingoHandler) {
         return RouterFunctions.route()
                 .GET(PATH+"card" , cardBingoHandler::getAllCardBingo)
+                .POST(PATH+"save" , cardBingoHandler::saveCard)
                 .build();
     }
 }

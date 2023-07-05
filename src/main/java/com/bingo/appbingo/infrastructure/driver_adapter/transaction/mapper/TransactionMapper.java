@@ -2,8 +2,10 @@ package com.bingo.appbingo.infrastructure.driver_adapter.transaction.mapper;
 
 import com.bingo.appbingo.domain.model.support.Support;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
+import com.bingo.appbingo.domain.model.transaction.TransactionDto;
 import com.bingo.appbingo.infrastructure.driver_adapter.support.SupportEntity;
 import com.bingo.appbingo.infrastructure.driver_adapter.transaction.TransactionEntity;
+import org.springframework.security.core.userdetails.User;
 
 public class TransactionMapper {
     private TransactionMapper() {
@@ -41,4 +43,6 @@ public class TransactionMapper {
                 .createdAt(transaction.getUpdatedAt())
                 .build();
     }
+
+
 }

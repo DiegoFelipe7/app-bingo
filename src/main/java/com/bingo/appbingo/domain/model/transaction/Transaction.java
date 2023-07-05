@@ -24,13 +24,15 @@ public class Transaction {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Transaction(Integer id, String walletType, String transaction, BigDecimal price, String urlTransaction, StateTransaction stateTransaction, Boolean state) {
+    public Transaction(Integer id, String walletType, String transaction, BigDecimal price,String currency, String urlTransaction, StateTransaction stateTransaction, Boolean state , LocalDateTime createdAt) {
         this.id = id;
         this.walletType = walletType;
         this.transaction = transaction;
         this.price = price;
+        this.currency=currency;
         this.urlTransaction = urlTransaction;
         this.stateTransaction = stateTransaction;
         this.state = state;
+        this.createdAt=createdAt;
     }
 }

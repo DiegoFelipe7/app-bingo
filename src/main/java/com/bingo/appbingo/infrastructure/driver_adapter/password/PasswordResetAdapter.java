@@ -19,16 +19,17 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Repository
 public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordReset, PasswordResetEntity, Integer, PasswordReactiveResetRepository> implements PasswordResetRepository {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final AuthReactiveRepository authReactiveRepository;
 
-    public PasswordResetAdapter(PasswordReactiveResetRepository repository , AuthReactiveRepository authReactiveRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
+    public PasswordResetAdapter(PasswordReactiveResetRepository repository, AuthReactiveRepository authReactiveRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
         super(repository, mapper, d -> mapper.mapBuilder(d, PasswordReset.PasswordResetBuilder.class).build());
         this.authReactiveRepository = authReactiveRepository;
-        this.emailService= emailService;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -40,31 +41,37 @@ public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordRese
                 .filter(UsersEntity::getStatus)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No tienes tu cuenta verificada", TypeStateResponse.Warning)))
                 .flatMap(ele -> {
-                    PasswordResetEntity passwordResetEntity = new PasswordResetEntity(ele.getEmail() , UUID.randomUUID().toString(), LocalDateTime.now().plusHours(1));
-                    return repository.save(passwordResetEntity).flatMap(data-> emailService.sendEmailRecoverPassword(ele.getFullName(), data.getEmail(), data.getToken())
-                                            .then(Mono.just(new Response(TypeStateResponses.Success, "se envió un correo electrónico con la opción de actualizar su contraseña."))));
+                    PasswordResetEntity passwordResetEntity = new PasswordResetEntity(ele.getEmail(), UUID.randomUUID().toString(), LocalDateTime.now().plusHours(1));
+                    return repository.save(passwordResetEntity).flatMap(data -> emailService.sendEmailRecoverPassword(ele.getFullName(), data.getEmail(), data.getToken())
+                            .then(Mono.just(new Response(TypeStateResponses.Success, "se envió un correo electrónico con la opción de actualizar su contraseña,tienes una hora para realizar la actualizacion."))));
                 });
 
     }
 
     @Override
     public Mono<Boolean> tokenValidation(String token) {
-          return repository.findByToken(token)
-                    .flatMap(ele -> Mono.just(ele.getDuration().isAfter(LocalDateTime.now())));
+        return repository.findByToken(token)
+                .flatMap(ele -> Mono.just(ele.getDuration().isAfter(LocalDateTime.now())));
     }
 
     @Override
     public Mono<Response> passwordChange(String token, Login login) {
         return repository.findByToken(token)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "Lo sentimos, el token es invalido!", TypeStateResponse.Error)))
-                .flatMap(data-> authReactiveRepository.findByEmailIgnoreCase(data.getEmail())
-                            .flatMap(ele->{
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "Lo sentimos, el token no es valido!", TypeStateResponse.Error)))
+                .flatMap(data -> {
+                    if(data.getDuration().isAfter(LocalDateTime.now())) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"EL token expiro realiza una nueva solicitud de cambio de contraseña" , TypeStateResponse.Warning));
+                    }
+                   return authReactiveRepository.findByEmailIgnoreCase(data.getEmail())
+                            .flatMap(ele -> {
                                 ele.setId(ele.getId());
                                 String encodedPassword = passwordEncoder.encode(login.getPassword());
                                 ele.setPassword(encodedPassword);
                                 ele.setToken(null);
-                                return authReactiveRepository.save(ele).thenReturn(new Response(TypeStateResponses.Success, "Contraseña actualizada!"));
-                            }));
+                                return authReactiveRepository.save(ele)
+                                        .thenReturn(new Response(TypeStateResponses.Success, "Contraseña actualizada!"));
+                            });
+                });
 
     }
 }

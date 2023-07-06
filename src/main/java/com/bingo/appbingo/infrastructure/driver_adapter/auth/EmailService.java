@@ -51,18 +51,17 @@ public class EmailService {
     }
 
     public Mono<Void> sendEmailRecoverPassword(String fullName, String email, String token) {
+
+        MimeMessage message = mailSender.createMimeMessage();
+        String recovery = MessageHtml.recoverPassword(fullName,token);
+
         return Mono.fromRunnable(() -> {
             try {
-                Context context = new Context();
-                context.setVariable("token", token); // Establece las variables necesarias para la plantilla
-                context.setVariable("fullName", fullName);
-                String htmlContent = templateEngine.process("recoverPassword", context);
-                MimeMessage message = mailSender.createMimeMessage();
+                message.setSubject("Recuperar contraseña bet billions");
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
                 helper.setFrom(emailSender);
                 helper.setTo(email);
-                helper.setSubject("Restablecimiento de contraseña");
-                helper.setText(htmlContent, true); // Establece el contenido del correo electrónico como HTML
+                helper.setText(recovery, true);
                 mailSender.send(message);
             } catch (Exception e) {
                 Mono.error(new CustomException(HttpStatus.BAD_REQUEST, e.getMessage(), TypeStateResponse.Error));

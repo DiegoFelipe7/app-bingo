@@ -59,18 +59,18 @@ public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordRese
         return repository.findByToken(token)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "Lo sentimos, el token no es valido!", TypeStateResponse.Error)))
                 .flatMap(data -> {
-                    if(data.getDuration().isAfter(LocalDateTime.now())) {
-                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"EL token expiro realiza una nueva solicitud de cambio de contraseña" , TypeStateResponse.Warning));
+                    if (data.getDuration().isAfter(LocalDateTime.now())) {
+                        return authReactiveRepository.findByEmailIgnoreCase(data.getEmail())
+                                .flatMap(ele -> {
+                                    ele.setId(ele.getId());
+                                    String encodedPassword = passwordEncoder.encode(login.getPassword());
+                                    ele.setPassword(encodedPassword);
+                                    ele.setToken(null);
+                                    return authReactiveRepository.save(ele)
+                                            .thenReturn(new Response(TypeStateResponses.Success, "Contraseña actualizada!"));
+                                });
                     }
-                   return authReactiveRepository.findByEmailIgnoreCase(data.getEmail())
-                            .flatMap(ele -> {
-                                ele.setId(ele.getId());
-                                String encodedPassword = passwordEncoder.encode(login.getPassword());
-                                ele.setPassword(encodedPassword);
-                                ele.setToken(null);
-                                return authReactiveRepository.save(ele)
-                                        .thenReturn(new Response(TypeStateResponses.Success, "Contraseña actualizada!"));
-                            });
+                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "EL token expiro realiza una nueva solicitud de cambio de contraseña", TypeStateResponse.Warning));
                 });
 
     }

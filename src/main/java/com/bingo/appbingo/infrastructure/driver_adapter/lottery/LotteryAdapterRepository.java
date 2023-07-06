@@ -28,6 +28,7 @@ public class LotteryAdapterRepository extends ReactiveAdapterOperations<Lottery,
 
     @Override
     public Mono<Response> saveLottery(LotteryDto lotteryDto) {
+        System.out.println(lotteryDto);
         return repository.save(LotteryMapper.lotteryDtoALotteryEntity(lotteryDto))
                 .flatMap(ele -> roundRepository.saveRounds(lotteryDto.getRounds(), ele.getId()))
                 .thenReturn(new Response(TypeStateResponses.Success, "Sorteo creado exitosamente!"));

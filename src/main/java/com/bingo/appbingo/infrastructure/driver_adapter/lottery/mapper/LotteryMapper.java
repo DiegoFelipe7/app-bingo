@@ -52,6 +52,7 @@ public class LotteryMapper {
                 .createdAt(lotteryEntity.getCreatedAt())
                 .startDate(Utils.formatStartDate(lotteryEntity.getStartDate()))
                 .numberOfRounds(lotteryEntity.getNumberOfRounds())
+                .userGame(lotteryEntity.getUserGame())
                 .rounds(round)
                 .state(lotteryEntity.getState())
                 .build();

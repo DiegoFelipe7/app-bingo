@@ -19,6 +19,7 @@ public class LotteryDto {
     private String  startDate;
     private Integer numberOfRounds;
     private List<Round> rounds;
+    private List<Integer> userGame;
     private Boolean state;
 
 }

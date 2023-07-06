@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,5 +21,6 @@ public class LotteryEntity {
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;
+    private List<Integer> userGame;
     private Boolean state;
 }

@@ -31,4 +31,12 @@ public class Utils {
         return LocalDateTime.parse(starDate,dateFormatter);
     }
 
+    public static String formatStartDate(LocalDateTime startDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        return startDate.format(dateFormatter);
+    }
+
+
+
+
 }

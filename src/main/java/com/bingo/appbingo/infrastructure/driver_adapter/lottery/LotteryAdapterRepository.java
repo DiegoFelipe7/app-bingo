@@ -55,15 +55,10 @@ public class LotteryAdapterRepository extends ReactiveAdapterOperations<Lottery,
 
     @Override
     public Mono<LotteryDto> getLotteryId(Integer id) {
-//        var data= repository.findById(id)
-//                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"El Juego no esta registado", TypeStateResponse.Error)))
-//                .flatMap(ele->{
-//                    return  roundRepository.getRoundId(ele.getId()).collectList().map(res->{
-//
-//                    })
-//
-//                })
-        return null;
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El Juego no esta registado", TypeStateResponse.Error)))
+                .flatMap(ele -> roundRepository.getAllRounds(ele.getId()).collectList()
+                        .map(res -> LotteryMapper.lotteryDto(ele, res)));
     }
 
 

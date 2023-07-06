@@ -1,16 +1,17 @@
 package com.bingo.appbingo.domain.usecase.lottery;
 
-import com.bingo.appbingo.domain.model.lottery.LotteryDto;
+import com.bingo.appbingo.domain.model.lottery.Lottery;
 import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
+
 @RequiredArgsConstructor
-public class GetLotteryIdUseCase implements Function<Integer , Mono<LotteryDto>> {
+public class GetLotteryAvailableUseCase implements Supplier<Mono<Lottery>> {
     private final LotteryRepository lotteryRepository;
     @Override
-    public Mono<LotteryDto> apply(Integer id) {
-        return lotteryRepository.getLotteryId(id);
+    public Mono<Lottery> get() {
+        return lotteryRepository.getLotteryState();
     }
 }

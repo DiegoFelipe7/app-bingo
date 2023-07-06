@@ -2,8 +2,11 @@ package com.bingo.appbingo.infrastructure.driver_adapter.lottery.mapper;
 
 import com.bingo.appbingo.domain.model.lottery.Lottery;
 import com.bingo.appbingo.domain.model.lottery.LotteryDto;
+import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.lottery.LotteryEntity;
+
+import java.util.List;
 
 public class LotteryMapper {
 
@@ -39,6 +42,18 @@ public class LotteryMapper {
                 .startDate(Utils.starDate(lottery.getStartDate()))
                 .numberOfRounds(lottery.getNumberOfRounds())
                 .state(lottery.getState())
+                .build();
+    }
+
+    public static LotteryDto lotteryDto(LotteryEntity lotteryEntity, List<Round> round){
+        return LotteryDto.builder()
+                .id(lotteryEntity.getId())
+                .key(lotteryEntity.getKey())
+                .createdAt(lotteryEntity.getCreatedAt())
+                .startDate(Utils.formatStartDate(lotteryEntity.getStartDate()))
+                .numberOfRounds(lotteryEntity.getNumberOfRounds())
+                .rounds(round)
+                .state(lotteryEntity.getState())
                 .build();
     }
 

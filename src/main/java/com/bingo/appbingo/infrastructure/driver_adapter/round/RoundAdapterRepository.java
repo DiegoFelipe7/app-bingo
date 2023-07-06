@@ -38,4 +38,11 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
                 .map(RoundMapper::roundEntityARound);
     }
 
+    @Override
+    public Flux<Round> getAllRounds(Integer id) {
+        return repository.findAll()
+                .filter(ele -> ele.getIdLottery().equals(id))
+                .map(RoundMapper::roundEntityARound);
+    }
+
 }

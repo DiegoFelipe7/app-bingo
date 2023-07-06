@@ -9,13 +9,12 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public class RoundAdapterRepository extends ReactiveAdapterOperations<Round , RoundEntity , Integer , RoundReactiveRepository> implements RoundRepository {
+public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, RoundEntity, Integer, RoundReactiveRepository> implements RoundRepository {
     public RoundAdapterRepository(RoundReactiveRepository repository, ObjectMapper mapper) {
-        super(repository, mapper, d->mapper.mapBuilder(d,Round.RoundBuilder.class).build());
+        super(repository, mapper, d -> mapper.mapBuilder(d, Round.RoundBuilder.class).build());
     }
 
     @Override
@@ -30,6 +29,13 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round , Ro
                     return repository.save(RoundMapper.roundEntity(round));
                 })
                 .then();
-   }
+    }
+
+    @Override
+    public Flux<Round> getRoundId(Integer id) {
+        return repository.findAll()
+                .filter(ele -> ele.getId().equals(id))
+                .map(RoundMapper::roundEntityARound);
+    }
 
 }

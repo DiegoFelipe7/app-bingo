@@ -42,7 +42,7 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
     private final UserWalletReactiveRepository userWalletReactiveRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    @Value("${evox.url}")
+    @Value("${bet_billions.url}")
     private String url;
 
     private final JwtProvider jwtProvider;

@@ -6,10 +6,14 @@ import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
 import com.bingo.appbingo.infrastructure.driver_adapter.lottery.mapper.LotteryMapper;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -35,10 +39,32 @@ public class LotteryAdapterRepository extends ReactiveAdapterOperations<Lottery,
     }
 
     @Override
-    public Mono<Lottery> getLotteryId() {
+    public Flux<Lottery> getLottery() {
+        return repository.findAll()
+                .map(LotteryMapper::lotteryEntityALottery);
+    }
+
+    @Override
+    public Mono<Lottery> getLotteryState() {
         return repository.findAll()
                 .filter(ele -> ele.getState().equals(Boolean.TRUE))
                 .next()
                 .map(LotteryMapper::lotteryEntityALottery);
+
     }
+
+    @Override
+    public Mono<LotteryDto> getLotteryId(Integer id) {
+//        var data= repository.findById(id)
+//                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"El Juego no esta registado", TypeStateResponse.Error)))
+//                .flatMap(ele->{
+//                    return  roundRepository.getRoundId(ele.getId()).collectList().map(res->{
+//
+//                    })
+//
+//                })
+        return null;
+    }
+
+
 }

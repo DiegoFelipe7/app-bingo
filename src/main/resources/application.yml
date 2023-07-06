@@ -8,16 +8,12 @@ spring:
     url: r2dbc:postgresql://3.140.1.248:5432/bd-prueba
     username: postgres
     password: evoxproduccion
-  #  r2dbc:
-  #    url: r2dbc:postgresql://${URL_DATABASE}
-  #    username: ${USERNAME}
-  #    password: ${PASSWORD}
   application:
-    name: evox
+    name: betbillions
 jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
   expiration: 3600
-evox:
+bet_billions:
   url: https://betbillions.com.co/
   email:
     sender: corporate@betbillions.com.co

@@ -19,7 +19,7 @@ import javax.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
-    @Value("${evox.email.sender}")
+    @Value("${bet_billions.email.sender}")
     private String emailSender;
     private final JavaMailSender mailSender;
     private final Scheduler scheduler;

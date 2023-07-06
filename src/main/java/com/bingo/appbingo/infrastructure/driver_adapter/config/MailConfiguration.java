@@ -14,10 +14,10 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class MailConfiguration {
 
-    @Value("${evox.email.sender}")
+    @Value("${bet_billions.email.sender}")
     private String emailUser;
 
-    @Value("${evox.email.password}")
+    @Value("${bet_billions.email.password}")
     private String password;
 
     @Bean

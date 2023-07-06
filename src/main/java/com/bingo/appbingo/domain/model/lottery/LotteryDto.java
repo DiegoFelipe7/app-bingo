@@ -21,9 +21,4 @@ public class LotteryDto {
     private List<Round> rounds;
     private Boolean state;
 
-    public LotteryDto(String startDate, Integer numberOfRounds, List<Round> rounds) {
-        this.startDate = startDate;
-        this.numberOfRounds = numberOfRounds;
-        this.rounds = rounds;
-    }
 }

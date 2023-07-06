@@ -3,15 +3,15 @@ package com.bingo.appbingo.domain.usecase.lottery;
 import com.bingo.appbingo.domain.model.lottery.Lottery;
 import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
-public class GetLotteryIdUseCase implements Supplier<Mono<Lottery>> {
+public class GetLotteryIdUseCase implements Supplier<Flux<Lottery>> {
     private final LotteryRepository lotteryRepository;
     @Override
-    public Mono<Lottery> get() {
-        return lotteryRepository.getLotteryId();
+    public Flux<Lottery> get() {
+        return lotteryRepository.getLottery();
     }
 }

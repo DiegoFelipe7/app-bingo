@@ -1,9 +1,9 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper;
 
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
-import com.bingo.appbingo.domain.model.cardbingo.CardBingoDto;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.CardBingoEntity;
 
+import java.time.LocalDateTime;
 
 
 public class CardBingoMapper {
@@ -17,6 +17,7 @@ public class CardBingoMapper {
                 .key(cardBingo.getKey())
                 .userId(cardBingo.getUserId())
                 .lotteryId(cardBingo.getLotteryId())
+                .card(cardBingo.getCard())
                 .round(cardBingo.getRound())
                 .state(cardBingo.getState())
                 .createdAt(cardBingo.getCreatedAt())
@@ -29,23 +30,14 @@ public class CardBingoMapper {
                 .key(cardBingo.getKey())
                 .userId(cardBingo.getUserId())
                 .lotteryId(cardBingo.getLotteryId())
+                .card(cardBingo.getCard())
                 .round(cardBingo.getRound())
-                .state(cardBingo.getState())
-                .createdAt(cardBingo.getCreatedAt())
+                .state(false)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    public static CardBingoEntity cardBingoDtoACardBingoEntity(CardBingoDto cardBingo){
-        return CardBingoEntity.builder()
-                .id(cardBingo.getId())
-                .key(cardBingo.getKey())
-                .userId(cardBingo.getUserId())
-                .lotteryId(cardBingo.getLotteryId())
-                .round(cardBingo.getRound())
-                .state(cardBingo.getState())
-                .createdAt(cardBingo.getCreatedAt())
-                .build();
-    }
+
 
 
 

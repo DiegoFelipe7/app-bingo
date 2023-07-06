@@ -1,11 +1,9 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
-import com.bingo.appbingo.infrastructure.driver_adapter.bingoBalls.BingoBallsEntity;
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,13 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @Builder(toBuilder = true)
-@Table(name = "card_bingo")
+@Document(value = "card_bingo")
 public class CardBingoEntity {
     @Id
-    private Integer id;
+    private String id;
     private String key;
     private Integer userId;
     private Integer lotteryId;
+    private List<BingoBalls> card;
     private Integer round;
     private Boolean state;
     private LocalDateTime createdAt;

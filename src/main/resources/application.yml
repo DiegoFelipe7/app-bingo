@@ -10,6 +10,9 @@ spring:
     password: evoxproduccion
   application:
     name: betbillions
+  data:
+    mongodb:
+      uri: "mongodb+srv://dbuser:6QlIDZsMqrPkP8NZ@cluster0.s4e6i.mongodb.net/test?retryWrites=true&w=majority"
 jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
   expiration: 3600

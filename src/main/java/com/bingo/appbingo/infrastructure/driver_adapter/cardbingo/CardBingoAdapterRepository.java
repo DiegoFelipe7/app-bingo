@@ -2,14 +2,11 @@ package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
-import com.bingo.appbingo.domain.model.cardbingo.CardBingoDto;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
-import com.bingo.appbingo.infrastructure.driver_adapter.bingoBalls.BingoBallReactiveRepository;
-import com.bingo.appbingo.infrastructure.driver_adapter.bingoBalls.mapper.BingoBallsMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
-import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.helper.AdapterOperations;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
@@ -17,29 +14,25 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 import java.util.List;
 
 
 @Repository
-public class CardBingoAdapterRepository extends ReactiveAdapterOperations<CardBingo, CardBingoEntity, Integer, CardBingoReactiveRepository> implements CardBingoRepository {
+public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, CardBingoEntity, String, CardBingoDBRepository> implements CardBingoRepository {
     private final UsersReactiveRepository usersReactiveRepository;
-    private final BingoBallReactiveRepository bingoBallReactiveRepository;
     private final JwtProvider jwtProvider;
 
-    public CardBingoAdapterRepository(CardBingoReactiveRepository repository, UsersReactiveRepository usersReactiveRepository, BingoBallReactiveRepository bingoBallReactiveRepository, JwtProvider jwtProvider, ObjectMapper mapper) {
+    public CardBingoAdapterRepository(CardBingoDBRepository repository, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
-        this.bingoBallReactiveRepository = bingoBallReactiveRepository;
         this.jwtProvider = jwtProvider;
     }
 
     @Override
-    public Flux<CardBingoDto> generateCardBingo() {
+    public Flux<CardBingo> generateCardBingo() {
         return Flux.range(0, 2)
                 .flatMap(ele -> cardBingo()
-                        .map(data -> new CardBingoDto(Utils.uid(), data)));
+                        .map(data -> new CardBingo(Utils.uid(), data)));
     }
 
     @Override
@@ -51,25 +44,20 @@ public class CardBingoAdapterRepository extends ReactiveAdapterOperations<CardBi
     }
 
     @Override
-    public Mono<Response> saveCardBingo(List<CardBingoDto> cardBingo, String token) {
+    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
-                .delayElement(Duration.ofSeconds(5))
                 .flatMapMany(user -> Flux.fromIterable(cardBingo)
-                        .concatMap(card -> {
-                            card.setUserId(user.getId());
-                            return repository.save(CardBingoMapper.cardBingoDtoACardBingoEntity(card))
-                                    .flatMapMany(savedCard -> Flux.fromIterable(card.getCard())
-                                            .concatMap(ball -> {
-                                                ball.setCardBingoId(savedCard.getId());
-                                                return bingoBallReactiveRepository.save(BingoBallsMapper.bingoBallsABingoBallsEntity(ball));
-                                            }));
-                        }))
-                .then(Mono.just(new Response(TypeStateResponses.Success, "Tarjetas de Bingo guardadas correctamente")));
+                        .index()
+                        .flatMap(card -> {
+                            Integer number = card.getT1().intValue() + 1;
+                            card.getT2().setUserId(user.getId());
+                            card.getT2().setRound(number);
+                            return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
+                        })
+                        .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
+                ).next();
     }
-
-
-
 
 
     public Flux<BingoBalls> generateBalls(Integer min) {

@@ -48,11 +48,7 @@ public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordRese
 
     }
 
-    @Override
-    public Mono<Boolean> tokenValidation(String token) {
-        return repository.findByToken(token)
-                .flatMap(ele -> Mono.just(ele.getDuration().isAfter(LocalDateTime.now())));
-    }
+
 
     @Override
     public Mono<Response> passwordChange(String token, Login login) {

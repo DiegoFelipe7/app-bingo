@@ -1,6 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper;
 
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
+import com.bingo.appbingo.domain.model.cardbingo.CardBingoDto;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.CardBingoEntity;
 
 
@@ -16,7 +17,6 @@ public class CardBingoMapper {
                 .key(cardBingo.getKey())
                 .userId(cardBingo.getUserId())
                 .lotteryId(cardBingo.getLotteryId())
-                .card(cardBingo.getCard())
                 .round(cardBingo.getRound())
                 .state(cardBingo.getState())
                 .createdAt(cardBingo.getCreatedAt())
@@ -29,27 +29,24 @@ public class CardBingoMapper {
                 .key(cardBingo.getKey())
                 .userId(cardBingo.getUserId())
                 .lotteryId(cardBingo.getLotteryId())
-                .card(cardBingo.getCard())
-               .round(cardBingo.getRound())
+                .round(cardBingo.getRound())
+                .state(cardBingo.getState())
+                .createdAt(cardBingo.getCreatedAt())
+                .build();
+    }
+
+    public static CardBingoEntity cardBingoDtoACardBingoEntity(CardBingoDto cardBingo){
+        return CardBingoEntity.builder()
+                .id(cardBingo.getId())
+                .key(cardBingo.getKey())
+                .userId(cardBingo.getUserId())
+                .lotteryId(cardBingo.getLotteryId())
+                .round(cardBingo.getRound())
                 .state(cardBingo.getState())
                 .createdAt(cardBingo.getCreatedAt())
                 .build();
     }
 
 
-//    public static BingoCard bingoCardEntityBingoCard(BingoCardEntity bingoCard){
-//        return BingoCard.builder()
-//                .numbers(bingoCard.getNumbers())
-//                .state(bingoCard.getState())
-//                .build();
-//
-//    }
-//
-//    public static BingoCardEntity bingoCardABingoCardEntity(BingoCard bingoCard){
-//        return BingoCardEntity.builder()
-//                .numbers(bingoCard.getNumbers())
-//                .state(bingoCard.getState())
-//                .build();
-//
-//    }
+
 }

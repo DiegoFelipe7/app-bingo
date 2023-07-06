@@ -7,7 +7,6 @@ import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.auth.*;
 import com.bingo.appbingo.domain.usecase.passsword.PasswordChangeUseCase;
 import com.bingo.appbingo.domain.usecase.passsword.RecoverPasswordUseCase;
-import com.bingo.appbingo.domain.usecase.passsword.TokenValidationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,7 +24,6 @@ public class AuthHandler {
     private final CreateUserUseCase createUserUseCase;
     private final RecoverPasswordUseCase recoverPasswordUseCase;
     private final PasswordChangeUseCase passwordChangeUseCase;
-    private final TokenValidationUseCase tokenValidationUseCase;
     private final ValidateTokenUseCase validateTokenUseCase;
     private final ActivateAccountUseCase activateAccountUseCase;
 
@@ -49,13 +47,6 @@ public class AuthHandler {
                 .flatMap(ele -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(recoverPasswordUseCase.apply(ele), Response.class));
-    }
-
-    public Mono<ServerResponse> validateToken(ServerRequest serverRequest) {
-        String token = serverRequest.pathVariable("token");
-        return ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(tokenValidationUseCase.apply(token), Boolean.class);
     }
 
     public Mono<ServerResponse> passwordChange(ServerRequest serverRequest) {

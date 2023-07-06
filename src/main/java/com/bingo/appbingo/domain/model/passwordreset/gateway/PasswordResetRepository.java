@@ -6,6 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface PasswordResetRepository {
     Mono<Response> passwordRecovery(Login email);
-    Mono<Boolean> tokenValidation(String token);
     Mono<Response> passwordChange(String token, Login login);
 }

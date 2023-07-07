@@ -27,7 +27,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, UsersReactiveRepository> implements UserRepository {
@@ -42,14 +44,19 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
 
+
     @Override
     public Flux<References> getAllReferences(String token) {
         String userName = jwtProvider.extractToken(token);
+        AtomicInteger counter = new AtomicInteger(0);
         return repository.findByUsername(userName)
                 .flatMapMany(user -> repository.findAll()
                         .filter(ele -> Objects.equals(ele.getParentId(), user.getId()))
                         .filter(ele -> !ele.getUsername().equals(userName))
-                        .map(data -> new References(data.getFullName(), data.getPhone(), data.getUsername(), data.getCreatedAt())));
+                        .map(ele -> {
+                            Integer currentCount = counter.incrementAndGet();
+                            return UserMapper.referencesDirect(ele, currentCount);
+                        }).sort(Comparator.comparing(References::getId)));
 
 
     }
@@ -57,8 +64,12 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
     @Override
     public Flux<References> getAllReferencesTeam(String token) {
         String userName = jwtProvider.extractToken(token);
+        AtomicInteger counter = new AtomicInteger(0);
         return repository.findUserAndDescendantsTeam(userName)
-                .map(data -> new References(data.getFullName(), data.getLevel(), data.getUsername(), data.getCreatedAt()));
+                .map(ele -> {
+                    Integer currentCount = counter.incrementAndGet();
+                    return UserMapper.referencesLevel(ele, currentCount);
+                }).sort(Comparator.comparing(References::getId));
 
     }
 

@@ -14,6 +14,7 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.util.List;
 
 
@@ -44,6 +45,18 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     }
 
     @Override
+    public Mono<Boolean> validatePurchaseLottery(Integer id, String token) {
+        String username = jwtProvider.extractToken(token);
+        return usersReactiveRepository.findByUsername(username)
+                .flatMapMany(ele -> repository.findAll()
+                        .filter(data -> data.getState().equals(Boolean.TRUE) &&
+                                data.getLotteryId().equals(id) &&
+                                data.getUserId().equals(ele.getId())))
+                .hasElements();
+    }
+
+
+    @Override
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
@@ -58,7 +71,9 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                         .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
                 ).next();
     }
+    public static void prueba(){
 
+    }
 
     public Flux<BingoBalls> generateBalls(Integer min) {
         char[] letters = {'B', 'I', 'N', 'G', 'O'};

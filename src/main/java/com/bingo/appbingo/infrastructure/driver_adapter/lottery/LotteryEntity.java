@@ -21,6 +21,5 @@ public class LotteryEntity {
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;
-    private List<Integer> userGame;
     private Boolean state;
 }

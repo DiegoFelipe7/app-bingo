@@ -4,6 +4,7 @@ import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.cardbingo.GenerateCardBingoUseCase;
 import com.bingo.appbingo.domain.usecase.cardbingo.SaveCardBingoUseCase;
+import com.bingo.appbingo.domain.usecase.cardbingo.ValidatePurchaseLotteryUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CardBingoHandler {
     private final GenerateCardBingoUseCase generateCardBingoUseCase;
     private final SaveCardBingoUseCase saveCardBingoUseCase;
+    private final ValidatePurchaseLotteryUseCase validatePurchaseLotteryUseCase;
 
     public Mono<ServerResponse> getAllCardBingo(ServerRequest serverRequest) {
         return ServerResponse.ok()
@@ -36,6 +38,14 @@ public class CardBingoHandler {
                 .flatMap(ele -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(saveCardBingoUseCase.apply(token, ele), Response.class));
+    }
+
+    public Mono<ServerResponse> validateIfPurchase(ServerRequest serverRequest) {
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(validatePurchaseLotteryUseCase.apply(token,id), Boolean.class);
     }
 
 }

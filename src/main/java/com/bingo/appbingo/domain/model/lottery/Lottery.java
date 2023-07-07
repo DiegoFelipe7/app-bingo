@@ -1,5 +1,6 @@
 package com.bingo.appbingo.domain.model.lottery;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,5 @@ public class Lottery {
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;
-    private List<Integer> userGame;
     private Boolean state;
 }

@@ -32,7 +32,7 @@ public class CardBingoMapper {
                 .lotteryId(cardBingo.getLotteryId())
                 .card(cardBingo.getCard())
                 .round(cardBingo.getRound())
-                .state(false)
+                .state(true)
                 .createdAt(LocalDateTime.now())
                 .build();
     }

@@ -1,5 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.userwallet;
 
+import com.bingo.appbingo.domain.model.enums.TypeHistory;
+import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -7,6 +9,7 @@ import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.history.PaymentHistoryReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.mapper.UserWalletMapper;
@@ -23,11 +26,13 @@ import java.time.LocalDateTime;
 public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserWallet, UserWalletEntity, Integer, UserWalletReactiveRepository> implements UserWalletRepository {
     private final JwtProvider jwtProvider;
     private final UsersReactiveRepository usersReactiveRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
 
-    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository, ObjectMapper mapper, JwtProvider jwtProvider, UsersReactiveRepository usersReactiveRepository) {
+    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository, ObjectMapper mapper, JwtProvider jwtProvider,PaymentHistoryRepository paymentHistoryRepository, UsersReactiveRepository usersReactiveRepository) {
         super(repository, mapper, d -> mapper.mapBuilder(d, UserWallet.UserWalletBuilder.class).build());
         this.jwtProvider = jwtProvider;
         this.usersReactiveRepository = usersReactiveRepository;
+        this.paymentHistoryRepository = paymentHistoryRepository;
     }
 
 
@@ -77,9 +82,15 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
-                    ele.setBalance(ele.getBalance().subtract(quantity));
+                    BigDecimal newBalance = ele.getBalance().subtract(quantity);
+                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El saldo es insuficciente", TypeStateResponse.Error));
+                    }
+                    ele.setBalance(newBalance);
                     ele.setUpdatedAt(LocalDateTime.now());
-                    return repository.save(ele);
+                    Mono<UserWalletEntity> saveWallet = repository.save(ele);
+                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , TypeHistory.Shopping);
+                    return Mono.when(saveWallet,savePaymentHistory);
                 }).then();
     }
 }

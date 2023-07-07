@@ -1,6 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.transaction;
 
 import com.bingo.appbingo.domain.model.enums.StateTransaction;
+import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
 import com.bingo.appbingo.domain.model.transaction.TransactionDto;
@@ -99,7 +100,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                     return repository.save(ele)
                             .flatMap(res -> {
                                 Mono<Void> updateUserWallet = userWalletRepository.increaseBalance(res.getUserId(), res.getPrice());
-                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice());
+                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice() , TypeHistory.Transaction);
                                 return Mono.when(updateUserWallet, savePaymentHistory);
                             })
                             .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));

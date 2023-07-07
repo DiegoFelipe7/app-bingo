@@ -16,7 +16,7 @@ public class RouterPaymentHistory {
     RouterFunction<ServerResponse> paymentHistoryRouter(PaymentHistoryHandler paymentHistoryHandler) {
         return RouterFunctions.route()
                 .GET(PATH+"list" , paymentHistoryHandler::getAllPaymentHistory)
-                .GET(PATH+"filter" , paymentHistoryHandler::getAllFilterHistory)
+                //.GET(PATH+"filter" , paymentHistoryHandler::getAllFilterHistory)
                 .build();
     }
 }

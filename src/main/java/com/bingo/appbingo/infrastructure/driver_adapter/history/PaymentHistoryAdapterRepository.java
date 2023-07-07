@@ -27,8 +27,8 @@ public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<P
     }
 
     @Override
-    public Mono<Void> saveHistory(Integer userId, BigDecimal balance) {
-        PaymentHistory history = new PaymentHistory(Utils.uid(), balance, userId, TypeHistory.Transaction);
+    public Mono<Void> saveHistory(Integer userId, BigDecimal balance ,TypeHistory typeHistory) {
+        PaymentHistory history = new PaymentHistory(Utils.uid(), balance, userId, typeHistory);
         return repository.save(PaymentHistoryMapper.paymentHistoryAPaymentHistoryEntity(history)).then();
 
     }
@@ -44,12 +44,12 @@ public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<P
     }
 
     @Override
-    public Flux<PaymentHistory> filterPaymentHistory(String type, String token) {
+    public Flux<PaymentHistory> filterPaymentHistory(TypeHistory type, String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
                 .flatMapMany(ele -> repository.findAll()
                         .filter(data -> data.getUserId().equals(ele.getId()))
-                        .filter(res -> res.getTypeHistory().equals(TypeHistory.Bingo)))
+                        .filter(res -> res.getTypeHistory().equals(type)))
                 .map(PaymentHistoryMapper::paymentHistoryEntityAPaymentHistory);
 
     }

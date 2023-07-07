@@ -38,7 +38,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
     @Override
     public Flux<CardBingo> generateCardBingo() {
-        return Flux.range(0, 2)
+        return Flux.range(0, 7)
                 .flatMap(ele -> cardBingo()
                         .map(data -> new CardBingo(Utils.uid(), data)));
     }
@@ -68,7 +68,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
                 .flatMap(user -> {
-                    BigDecimal total = price.multiply(BigDecimal.valueOf(cardBingo.size()));
+                    BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total)
                             .thenMany(Flux.fromIterable(cardBingo)
                                     .index()
@@ -82,11 +82,6 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
-    @Override
-    public Mono<Void> savePurchase(Integer quantity , Integer userId ) {
-       BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
-        return userWalletRepositoryAdapter.decreaseBalance(userId, total);
-    }
 
 
     public Flux<BingoBalls> generateBalls(Integer min) {

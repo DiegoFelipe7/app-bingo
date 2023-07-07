@@ -16,5 +16,4 @@ public interface CardBingoRepository {
     Mono<List<BingoBalls>> cardBingo();
     Mono<Boolean> validatePurchaseLottery(Integer id , String token);
     Mono<Response> saveCardBingo(List<CardBingo> cardBingo , String token);
-    Mono<Void> savePurchase(Integer quantity , Integer userId);
 }

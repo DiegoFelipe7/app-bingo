@@ -17,7 +17,7 @@ jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
   expiration: 3600
 bet_billions:
-  url: https://betbillions.com.co/
+  url: https://betbillions.com.co/createAccount/
   email:
     sender: corporate@betbillions.com.co
     password : Fara4020**

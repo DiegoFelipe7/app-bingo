@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.helper;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -7,6 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Utils {
+
+    private Utils() {
+        throw new IllegalStateException("Utility class");
+    }
     public static String extractUsername(String refLink) {
         int position = refLink.lastIndexOf('/');
         return refLink.substring(position + 1);
@@ -34,6 +39,13 @@ public class Utils {
     public static String formatStartDate(LocalDateTime startDate) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         return startDate.format(dateFormatter);
+    }
+
+    public static BigDecimal priceBingo (Integer size){
+        if(size>5 && size<=7){
+            return BigDecimal.valueOf(5);
+        }
+        return BigDecimal.valueOf(size);
     }
 
 

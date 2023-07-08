@@ -38,7 +38,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
     @Override
     public Flux<CardBingo> generateCardBingo() {
-        return Flux.range(0, 7)
+        return Flux.range(0, 10)
                 .flatMap(ele -> cardBingo()
                         .map(data -> new CardBingo(Utils.uid(), data)));
     }
@@ -64,7 +64,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
 
     @Override
-    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token) {
+    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token , Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
                 .flatMap(user -> {
@@ -75,6 +75,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                                     .concatMap(card -> {
                                         Integer number = card.getT1().intValue() + 1;
                                         card.getT2().setUserId(user.getId());
+                                        card.getT2().setLotteryId(lotteryId);
                                         card.getT2().setRound(number);
                                         return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
                                     }))

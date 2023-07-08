@@ -14,8 +14,8 @@ public class RouterCardBingo {
     @Bean
     RouterFunction<ServerResponse> cardBingoRouter(CardBingoHandler cardBingoHandler) {
         return RouterFunctions.route()
-                .GET(PATH+"card" , cardBingoHandler::getAllCardBingo)
-                .POST(PATH+"save" , cardBingoHandler::saveCard)
+                .GET(PATH+"list" , cardBingoHandler::getAllCardBingo)
+                .POST(PATH+"save/{lotteryId}" , cardBingoHandler::saveCard)
                 .GET(PATH+"validate/{id}" , cardBingoHandler::validateIfPurchase)
                 .build();
     }

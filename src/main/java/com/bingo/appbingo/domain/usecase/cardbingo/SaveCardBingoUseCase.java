@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
-public class SaveCardBingoUseCase implements BiFunction<String, List<CardBingo>, Mono<Response>> {
+public class SaveCardBingoUseCase  {
     private final CardBingoRepository cardBingoRepository;
-
-    @Override
-    public Mono<Response> apply(String token, List<CardBingo> cardBingo) {
-        return cardBingoRepository.saveCardBingo(cardBingo,token);
+    public Mono<Response> apply(String token, List<CardBingo> cardBingo , Integer lotteryId) {
+        return cardBingoRepository.saveCardBingo(cardBingo,token,lotteryId);
     }
+
+
 }

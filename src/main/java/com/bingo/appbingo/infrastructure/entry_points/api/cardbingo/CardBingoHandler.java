@@ -32,12 +32,13 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> saveCard(ServerRequest serverRequest) {
+        Integer lotteryId = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
         String token = serverRequest.headers().firstHeader("Authorization");
         return serverRequest.bodyToMono(new ParameterizedTypeReference<List<CardBingo>>() {
                 })
                 .flatMap(ele -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(saveCardBingoUseCase.apply(token, ele), Response.class));
+                        .body(saveCardBingoUseCase.apply(token, ele,lotteryId), Response.class));
     }
 
     public Mono<ServerResponse> validateIfPurchase(ServerRequest serverRequest) {

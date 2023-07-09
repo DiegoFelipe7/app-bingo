@@ -23,8 +23,9 @@ public interface UsersReactiveRepository extends ReactiveCrudRepository<UsersEnt
       WHERE u.username = :username
       UNION ALL
       SELECT u.id, u.full_name, u.phone, u.username, u.created_at, ut.level + 1 AS level
-      FROM users u
+      FROM users u 
       INNER JOIN user_team ut ON u.parent_id = ut.id
+      WHERE ut.level < 4
     )
     SELECT * FROM user_team WHERE username <> :username""")
     Flux<UsersEntity> findUserAndDescendantsTeam(@Param("username") String username);

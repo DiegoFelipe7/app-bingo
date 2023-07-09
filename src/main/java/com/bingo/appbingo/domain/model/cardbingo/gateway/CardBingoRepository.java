@@ -15,5 +15,7 @@ public interface CardBingoRepository {
     Flux<CardBingo> generateCardBingo();
     Mono<List<BingoBalls>> cardBingo();
     Mono<Boolean> validatePurchaseLottery(Integer id , String token);
+
+    Flux<CardBingo> getCardBingo(Integer id , String token);
     Mono<Response> saveCardBingo(List<CardBingo> cardBingo , String token , Integer lotteryId);
 }

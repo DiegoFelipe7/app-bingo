@@ -3,6 +3,7 @@ package com.bingo.appbingo.infrastructure.entry_points.api.cardbingo;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.cardbingo.GenerateCardBingoUseCase;
+import com.bingo.appbingo.domain.usecase.cardbingo.GetCardBingoUserUseCase;
 import com.bingo.appbingo.domain.usecase.cardbingo.SaveCardBingoUseCase;
 import com.bingo.appbingo.domain.usecase.cardbingo.ValidatePurchaseLotteryUseCase;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class CardBingoHandler {
     private final GenerateCardBingoUseCase generateCardBingoUseCase;
     private final SaveCardBingoUseCase saveCardBingoUseCase;
     private final ValidatePurchaseLotteryUseCase validatePurchaseLotteryUseCase;
-
+    private final GetCardBingoUserUseCase getCardBingoUserUseCase;
     public Mono<ServerResponse> getAllCardBingo(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -47,6 +48,14 @@ public class CardBingoHandler {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(validatePurchaseLotteryUseCase.apply(token,id), Boolean.class);
+    }
+
+    public Mono<ServerResponse> getAllCardBingoUser(ServerRequest serverRequest) {
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(getCardBingoUserUseCase.apply(id,token), CardBingo.class);
     }
 
 }

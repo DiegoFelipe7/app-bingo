@@ -12,7 +12,8 @@ spring:
     name: betbillions
   data:
     mongodb:
-      uri: "mongodb+srv://dbuser:6QlIDZsMqrPkP8NZ@cluster0.s4e6i.mongodb.net/test?retryWrites=true&w=majority"
+      #uri: "mongodb+srv://dbuser:6QlIDZsMqrPkP8NZ@cluster0.s4e6i.mongodb.net/test?retryWrites=true&w=majority"
+      uri: "mongodb+srv://lftech661:XDv6jSzz47DCeMM0@cluster0.8uimusl.mongodb.net/betbillions"
 jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
   expiration: 3600

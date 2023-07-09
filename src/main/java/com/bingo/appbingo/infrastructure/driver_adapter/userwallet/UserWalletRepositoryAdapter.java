@@ -2,6 +2,8 @@ package com.bingo.appbingo.infrastructure.driver_adapter.userwallet;
 
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
+import com.bingo.appbingo.domain.model.packagepurchase.PackagePurchase;
+import com.bingo.appbingo.domain.model.packagepurchase.gateway.PackagePurchaseRepository;
 import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -27,12 +29,13 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     private final JwtProvider jwtProvider;
     private final UsersReactiveRepository usersReactiveRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
-
-    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository, ObjectMapper mapper, JwtProvider jwtProvider,PaymentHistoryRepository paymentHistoryRepository, UsersReactiveRepository usersReactiveRepository) {
+    private final PackagePurchaseRepository packagePurchaseRepository;
+    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository,PackagePurchaseRepository packagePurchaseRepository, ObjectMapper mapper, JwtProvider jwtProvider,PaymentHistoryRepository paymentHistoryRepository, UsersReactiveRepository usersReactiveRepository) {
         super(repository, mapper, d -> mapper.mapBuilder(d, UserWallet.UserWalletBuilder.class).build());
         this.jwtProvider = jwtProvider;
         this.usersReactiveRepository = usersReactiveRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
+        this.packagePurchaseRepository=packagePurchaseRepository;
     }
 
 

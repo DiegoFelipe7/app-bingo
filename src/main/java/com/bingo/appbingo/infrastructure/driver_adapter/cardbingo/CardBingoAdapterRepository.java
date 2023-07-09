@@ -1,10 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
-
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
-import com.bingo.appbingo.domain.model.userwallet.UserWallet;
-import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
@@ -19,7 +16,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Repository
@@ -62,7 +61,17 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 .hasElements();
     }
 
+    @Override
+    public Flux<CardBingo> getCardBingo(Integer id, String token) {
+        String username = jwtProvider.extractToken(token);
+        return usersReactiveRepository.findByUsername(username)
+                .flatMapMany(ele -> repository.findAll()
+                        .filter(data -> data.getState().equals(Boolean.TRUE) &&
+                                data.getLotteryId().equals(id) &&
+                                data.getUserId().equals(ele.getId())))
+                .map(CardBingoMapper::cardBingoEntityACardBingo);
 
+    }
     @Override
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token , Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
@@ -82,17 +91,22 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                             .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")));
                 });
     }
-
-
-
     public Flux<BingoBalls> generateBalls(Integer min) {
         char[] letters = {'B', 'I', 'N', 'G', 'O'};
+        Set<Integer> generatedNumbers = new HashSet<>();
         return Flux.range(1, 5)
                 .map(index -> {
-                    int value = (int) (Math.random() * 15) + 1 + 15 * min;
+                    int value;
+                    do {
+                        value = (int) (Math.random() * 15) + 1 + 15 * min;
+                    } while (generatedNumbers.contains(value));
+
+                    generatedNumbers.add(value);
+
                     String ballNumber = String.valueOf(letters[min]) + value;
                     return new BingoBalls(ballNumber, false);
                 });
     }
+
 
 }

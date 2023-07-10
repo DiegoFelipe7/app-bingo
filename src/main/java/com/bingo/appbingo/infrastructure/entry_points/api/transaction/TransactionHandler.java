@@ -18,8 +18,10 @@ import reactor.core.publisher.Mono;
 public class TransactionHandler {
     private final GetAllTransactionUseCase getAllTransactionUseCase;
     private final GetTransactionIdUseCase getTransactionIdUseCase;
+    private final SaveTransactionUserNetworkUseCase saveTransactionUserNetworkUseCase;
     private final SaveTransactionUseCase saveTransactionUseCase;
     private final ValidateTransactionUseCase validateTransactionUseCase;
+    private final ValidateTransactionUserNetworkUseCase validateTransactionUserNetworkUseCase;
 
     private final InvalidTransactionUseCase invalidTransactionUseCase;
 
@@ -45,6 +47,14 @@ public class TransactionHandler {
                         .body(saveTransactionUseCase.apply(ele, token), Response.class));
     }
 
+    public Mono<ServerResponse> saveTransactionUserNetwork(ServerRequest serverRequest) {
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return serverRequest.bodyToMono(Transaction.class)
+                .flatMap(ele -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(saveTransactionUserNetworkUseCase.apply(ele, token), Response.class));
+    }
+
    // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> validateTransaction(ServerRequest serverRequest) {
         String transaction = serverRequest.pathVariable("transaction");
@@ -52,6 +62,14 @@ public class TransactionHandler {
                 .flatMap(ele -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(validateTransactionUseCase.apply(transaction , ele), Response.class));
+    }
+
+    public Mono<ServerResponse> validateUserNetwork(ServerRequest serverRequest) {
+        String transaction = serverRequest.pathVariable("transaction");
+        return serverRequest.bodyToMono(Transaction.class)
+                .flatMap(ele -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(validateTransactionUserNetworkUseCase.apply(transaction), Response.class));
     }
 
 //    @PreAuthorize("hasAuthority('ROLE_ADMIN')")

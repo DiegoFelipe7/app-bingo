@@ -2,6 +2,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.transaction;
 
 import com.bingo.appbingo.domain.model.enums.StateTransaction;
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
+import com.bingo.appbingo.domain.model.enums.TypeTransaction;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
 import com.bingo.appbingo.domain.model.transaction.TransactionDto;
@@ -52,7 +53,9 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                         .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(),
                                 ele.getTransaction(), ele.getPrice(), ele.getCurrency(),
                                 ele.getUrlTransaction(), ele.getStateTransaction(),
-                                ele.getState(), ele.getCreatedAt(), data.getUsername(),
+                                ele.getState(),
+                                ele.getTypeTransaction(),
+                                ele.getCreatedAt(), data.getUsername(),
                                 data.getEmail())));
     }
 
@@ -62,27 +65,62 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                 .filter(data -> data.getStateTransaction().equals(StateTransaction.Pending))
                 .flatMap(ele -> usersReactiveRepository.findById(ele.getUserId())
                         .map(data -> new TransactionDto(ele.getId(), ele.getWalletType(),
-                                        ele.getTransaction(), ele.getPrice(), ele.getCurrency(),
-                                        ele.getUrlTransaction(), ele.getStateTransaction(),
-                                        ele.getState(), ele.getCreatedAt(), data.getUsername(),
-                                        data.getEmail())));
+                                ele.getTransaction(), ele.getPrice(), ele.getCurrency(),
+                                ele.getUrlTransaction(), ele.getStateTransaction(),
+                                ele.getState(), ele.getTypeTransaction(), ele.getCreatedAt(), data.getUsername(),
+                                data.getEmail())));
     }
 
     @Override
+    public Mono<Response> validateTransactionUserNetwork(String hash) {
+        return repository.findByTransactionIgnoreCase(hash)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error en la selección de la transacción", TypeStateResponse.Error)))
+                .flatMap(transactionEntity -> {
+                    if (transactionEntity.getStateTransaction() == StateTransaction.Completed) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La transaccion ya se encuentra activa!", TypeStateResponse.Error));
+                    }
+                    transactionEntity.setState(Boolean.TRUE);
+                    transactionEntity.setUpdatedAt(LocalDateTime.now());
+                    transactionEntity.setStateTransaction(StateTransaction.Completed);
+                    return repository.save(transactionEntity)
+                            .then(usersReactiveRepository.findById(transactionEntity.getUserId()))
+                            .flatMap(user -> {
+                                user.setValidForCommissions(Boolean.TRUE);
+                                return usersReactiveRepository.save(user);
+                            })
+                            .then(paymentHistoryRepository.saveHistory(transactionEntity.getUserId(), transactionEntity.getPrice(), TypeHistory.Transaction))
+                            .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
+                });
+    }
+
+
+
+
+    @Override
     public Mono<Response> saveTransaction(Transaction transaction, String token) {
+        return saveTransactionInternal(transaction, token, TypeTransaction.Recharge, null);
+    }
+
+    @Override
+    public Mono<Response> saveUserNetwork(Transaction transaction, String token) {
+        return saveTransactionInternal(transaction, token, TypeTransaction.UserNetwork, BigDecimal.TEN);
+    }
+
+    private Mono<Response> saveTransactionInternal(Transaction transaction, String token, TypeTransaction typeTransaction, BigDecimal price) {
         String username = jwtProvider.extractToken(token);
         return repository.findByTransactionIgnoreCase(transaction.getTransaction())
                 .flatMap(existingTransaction -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Esta transacción ya se encuentra registrada!", TypeStateResponse.Warning)))
                 .switchIfEmpty(usersReactiveRepository.findByUsername(username)
                         .flatMap(user -> {
                             transaction.setUserId(user.getId());
+                            transaction.setTypeTransaction(typeTransaction);
+                            transaction.setPrice(price);
                             transaction.setStateTransaction(StateTransaction.Pending);
                             return repository.save(TransactionMapper.transactionATransactionEntity(transaction));
                         })
                         .flatMap(savedTransaction -> Mono.just(new Response(TypeStateResponses.Success, "Tu transacción sera validada dentro de una hora")))
                 ).cast(Response.class);
     }
-
 
     @Override
     public Mono<Response> validateTransaction(String hash, Transaction transaction) {
@@ -94,13 +132,13 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                     }
                     ele.setId(transaction.getId());
                     ele.setPrice(transaction.getPrice());
-                    ele.setState(true);
+                    ele.setState(Boolean.TRUE);
                     ele.setUpdatedAt(LocalDateTime.now());
                     ele.setStateTransaction(StateTransaction.Completed);
                     return repository.save(ele)
                             .flatMap(res -> {
                                 Mono<Void> updateUserWallet = userWalletRepository.increaseBalance(res.getUserId(), res.getPrice());
-                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice() , TypeHistory.Transaction);
+                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice(), TypeHistory.Transaction);
                                 return Mono.when(updateUserWallet, savePaymentHistory);
                             })
                             .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));

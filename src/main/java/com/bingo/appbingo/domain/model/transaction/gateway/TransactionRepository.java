@@ -8,8 +8,12 @@ import reactor.core.publisher.Mono;
 
 public interface TransactionRepository {
     Mono<Response> saveTransaction(Transaction transaction , String token);
+
+    Mono<Response> saveUserNetwork(Transaction transaction , String token);
+
     Mono<TransactionDto> getTransactionId(Integer id);
     Flux<TransactionDto> getAllTransaction();
+    Mono<Response> validateTransactionUserNetwork(String hash );
     Mono<Response> validateTransaction(String hash , Transaction transaction);
     Mono<Response> invalidTransaction(String transaction);
 }

@@ -1,12 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.transaction.mapper;
 
-import com.bingo.appbingo.domain.model.support.Support;
 import com.bingo.appbingo.domain.model.transaction.Transaction;
-import com.bingo.appbingo.domain.model.transaction.TransactionDto;
-import com.bingo.appbingo.infrastructure.driver_adapter.support.SupportEntity;
 import com.bingo.appbingo.infrastructure.driver_adapter.transaction.TransactionEntity;
-import org.springframework.security.core.userdetails.User;
-
 public class TransactionMapper {
     private TransactionMapper() {
         throw new IllegalStateException("Utility class");
@@ -23,6 +18,7 @@ public class TransactionMapper {
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
+                .typeTransaction(transaction.getTypeTransaction())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .build();
@@ -39,6 +35,7 @@ public class TransactionMapper {
                 .userId(transaction.getUserId())
                 .stateTransaction(transaction.getStateTransaction())
                 .state(transaction.getState())
+                .typeTransaction(transaction.getTypeTransaction())
                 .createdAt(transaction.getCreatedAt())
                 .createdAt(transaction.getUpdatedAt())
                 .build();

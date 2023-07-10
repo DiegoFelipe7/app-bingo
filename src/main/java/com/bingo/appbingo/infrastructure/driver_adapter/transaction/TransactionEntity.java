@@ -1,6 +1,7 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.transaction;
 
 import com.bingo.appbingo.domain.model.enums.StateTransaction;
+import com.bingo.appbingo.domain.model.enums.TypeTransaction;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -26,6 +27,7 @@ public class TransactionEntity {
     private Integer userId;
     private StateTransaction stateTransaction;
     private Boolean state;
+    private TypeTransaction typeTransaction;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

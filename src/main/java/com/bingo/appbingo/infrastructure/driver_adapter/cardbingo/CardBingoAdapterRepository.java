@@ -8,6 +8,8 @@ import com.bingo.appbingo.domain.model.packagepurchase.gateway.PackagePurchaseRe
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
+import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.AdapterOperations;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.packagepurchase.PackagePurchaseEntity;
@@ -16,6 +18,7 @@ import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletRepositoryAdapter;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -82,8 +85,8 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
-
         return usersReactiveRepository.findByUsername(username)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Error en el token" , TypeStateResponse.Error)))
                 .flatMap(user -> {
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(cardBingo, user.getId());
@@ -95,7 +98,9 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                                         card.getT2().setUserId(user.getId());
                                         card.getT2().setLotteryId(lotteryId);
                                         card.getT2().setRound(number);
-                                        return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
+                                        return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()))
+                                                .onErrorMap(throwable -> new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar los datos", TypeStateResponse.Error));
+
                                     }))
                             .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
                             .then(planPurchaseMono)
@@ -106,7 +111,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     public Mono<Void> planPurchase(List<CardBingo> list, Integer userId) {
         if (list.size() > 5) {
             return usersReactiveRepository.findById(userId).log()
-                    .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername(), data.getParentId())))
+                    .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername() ,data.getParentId())))
                     .then();
         }
         return Mono.empty();

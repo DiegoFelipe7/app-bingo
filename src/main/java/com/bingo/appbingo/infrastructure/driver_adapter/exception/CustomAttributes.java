@@ -26,12 +26,12 @@ public class CustomAttributes extends DefaultErrorAttributes {
             errorAttributes.put("message", customException.getMessage());
             errorAttributes.put("typeStatus" , customException.getTypeStatus());
         }
-        if (throwable instanceof DataIntegrityViolationException) {
-            String message = "Alguno de los campos ya existe en la base de datos!";
-            errorAttributes.put("status", HttpStatus.BAD_REQUEST);
-            errorAttributes.put("message", message);
-            errorAttributes.put("typeStatus" , "Warning");
-        }
+//        if (throwable instanceof DataIntegrityViolationException) {
+//            String message = "Alguno de los campos ya existe en la base de datos!";
+//            errorAttributes.put("status", HttpStatus.BAD_REQUEST);
+//            errorAttributes.put("message", message);
+//            errorAttributes.put("typeStatus" , "Warning");
+//        }
         if(throwable instanceof TransientDataAccessResourceException){
             String message = "Ocurrio un error en la actualizacion de alguno datos comunicate con el administrador!";
             errorAttributes.put("status", HttpStatus.BAD_REQUEST);

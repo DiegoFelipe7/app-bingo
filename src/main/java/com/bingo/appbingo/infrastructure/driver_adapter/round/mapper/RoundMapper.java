@@ -16,6 +16,8 @@ public class RoundMapper {
                 .award(roundEntity.getAward())
                 .userWinner(roundEntity.getUserWinner())
                 .completed(roundEntity.getCompleted())
+                .createdAt(roundEntity.getCreatedAt())
+                .updatedAt(roundEntity.getUpdatedAt())
                 .build();
     }
 
@@ -27,6 +29,8 @@ public class RoundMapper {
                 .award(round.getAward())
                 .userWinner(round.getUserWinner())
                 .completed(round.getCompleted())
+                .createdAt(round.getCreatedAt())
+                .updatedAt(round.getUpdatedAt())
                 .build();
     }
 
@@ -37,6 +41,8 @@ public class RoundMapper {
                 .idLottery(round.getIdLottery())
                 .typeGame(round.getTypeGame())
                 .award(round.getAward())
+                .createdAt(round.getCreatedAt())
+                .updatedAt(round.getUpdatedAt())
                 .build();
     }
 }

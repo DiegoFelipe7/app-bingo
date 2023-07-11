@@ -5,14 +5,13 @@ spring:
     suffix: .html
     check-template-location: false
   r2dbc:
-    url: r2dbc:postgresql://3.140.1.248:5432/bd-prueba
+    url: r2dbc:postgresql://167.86.126.237/betbillions
     username: postgres
-    password: evoxproduccion
+    password: Lider123**
   application:
     name: betbillions
   data:
     mongodb:
-      #uri: "mongodb+srv://dbuser:6QlIDZsMqrPkP8NZ@cluster0.s4e6i.mongodb.net/test?retryWrites=true&w=majority"
       uri: "mongodb+srv://lftech661:XDv6jSzz47DCeMM0@cluster0.8uimusl.mongodb.net/betbillions"
 jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecretsecret

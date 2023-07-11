@@ -1,4 +1,5 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
+
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
@@ -9,6 +10,8 @@ import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.AdapterOperations;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
+import com.bingo.appbingo.infrastructure.driver_adapter.packagepurchase.PackagePurchaseEntity;
+import com.bingo.appbingo.infrastructure.driver_adapter.packagepurchase.PackagePurchaseReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletRepositoryAdapter;
@@ -28,15 +31,15 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     private final UsersReactiveRepository usersReactiveRepository;
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final JwtProvider jwtProvider;
-    private final PackagePurchaseRepository packagePurchaseRepository;
+    private final PackagePurchaseReactiveRepository packagePurchaseRepository;
     private static final BigDecimal price = BigDecimal.valueOf(5);
 
-    public CardBingoAdapterRepository(CardBingoDBRepository repository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,JwtProvider jwtProvider, ObjectMapper mapper) {
+    public CardBingoAdapterRepository(CardBingoDBRepository repository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
-        this.userWalletRepositoryAdapter=userWalletRepositoryAdapter;
+        this.userWalletRepositoryAdapter = userWalletRepositoryAdapter;
         this.jwtProvider = jwtProvider;
-        this.packagePurchaseRepository=packagePurchaseRepository;
+        this.packagePurchaseRepository = packagePurchaseRepository;
     }
 
     @Override
@@ -76,15 +79,14 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 .map(CardBingoMapper::cardBingoEntityACardBingo);
 
     }
-    @Override
+
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
 
         return usersReactiveRepository.findByUsername(username)
                 .flatMap(user -> {
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
-                    Mono<Void> planPurchaseMono = planPurchase(cardBingo);
-
+                    Mono<Void> planPurchaseMono = planPurchase(cardBingo, user.getId());
                     return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total)
                             .thenMany(Flux.fromIterable(cardBingo)
                                     .index()
@@ -101,12 +103,13 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
-    public Mono<Void> planPurchase(List<CardBingo> list) {
-        return Flux.fromIterable(list)
-                .filter(card -> list.size() > 5)
-                .flatMap(card -> usersReactiveRepository.findById(card.getUserId()))
-                .flatMap(data -> packagePurchaseRepository.savePurchase(new PackagePurchase(data.getId(), data.getUsername(), data.getParentId())))
-                .then();
+    public Mono<Void> planPurchase(List<CardBingo> list, Integer userId) {
+        if (list.size() > 5) {
+            return usersReactiveRepository.findById(userId).log()
+                    .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername(), data.getParentId())))
+                    .then();
+        }
+        return Mono.empty();
     }
 
 
@@ -128,8 +131,6 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                     return new BingoBalls(ballNumber, false);
                 });
     }
-
-
 
 
 }

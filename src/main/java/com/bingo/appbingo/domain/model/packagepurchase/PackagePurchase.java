@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class PackagePurchase {
     private Integer id;
     private Integer userId;
@@ -17,10 +18,5 @@ public class PackagePurchase {
     private Boolean state;
     private LocalDateTime createdAt;
 
-    public PackagePurchase(Integer userId, String username, Integer userParent) {
-        this.userId = userId;
-        this.username = username;
-        this.userParent = userParent;
 
-    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -23,6 +24,8 @@ public class RoundEntity {
     private BigDecimal award;
     private Integer userWinner;
     private Boolean completed;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
 

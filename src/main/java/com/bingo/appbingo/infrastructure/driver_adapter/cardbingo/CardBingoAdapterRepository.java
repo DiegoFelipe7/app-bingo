@@ -2,6 +2,8 @@ package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
+import com.bingo.appbingo.domain.model.packagepurchase.PackagePurchase;
+import com.bingo.appbingo.domain.model.packagepurchase.gateway.PackagePurchaseRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
@@ -26,13 +28,15 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     private final UsersReactiveRepository usersReactiveRepository;
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final JwtProvider jwtProvider;
+    private final PackagePurchaseRepository packagePurchaseRepository;
     private static final BigDecimal price = BigDecimal.valueOf(5);
 
-    public CardBingoAdapterRepository(CardBingoDBRepository repository, UsersReactiveRepository usersReactiveRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,JwtProvider jwtProvider, ObjectMapper mapper) {
+    public CardBingoAdapterRepository(CardBingoDBRepository repository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.userWalletRepositoryAdapter=userWalletRepositoryAdapter;
         this.jwtProvider = jwtProvider;
+        this.packagePurchaseRepository=packagePurchaseRepository;
     }
 
     @Override
@@ -108,5 +112,8 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
+    public Mono<Void> planPurchase(List<CardBingo> list){
+       return  null;
+    }
 
 }

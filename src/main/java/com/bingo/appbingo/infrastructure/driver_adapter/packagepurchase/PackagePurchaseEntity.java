@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "package_purchase")
 public class PackagePurchaseEntity {
     private Integer id;
+    private Integer userId;
     private String username;
     private Integer userParent;
     private Boolean state;

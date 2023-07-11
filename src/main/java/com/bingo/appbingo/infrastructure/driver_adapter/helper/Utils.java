@@ -42,7 +42,7 @@ public class Utils {
     }
 
     public static BigDecimal priceBingo (Integer size){
-        if(size>5 && size<=7){
+        if(size>5 && size <=7){
             return BigDecimal.valueOf(5);
         }
         return BigDecimal.valueOf(size);

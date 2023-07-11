@@ -90,7 +90,9 @@ public class AuthRepositoryAdapter extends ReactiveAdapterOperations<Users, User
         if (user.getInvitationLink() == null) {
             return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Necesitas un link de referido para tu registro!", TypeStateResponse.Warning));
         }
-        return referral(user);
+        return repository.findByEmailIgnoreCaseOrUsernameEqualsIgnoreCase(user.getEmail(), user.getUsername())
+                .flatMap(ele -> Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El correo electrónico o nombre de usuario ya se encuentran registrados", TypeStateResponse.Error)))
+                .switchIfEmpty(referral(user)).cast(Response.class);
     }
 
 

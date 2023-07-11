@@ -11,4 +11,6 @@ public interface AuthReactiveRepository extends ReactiveCrudRepository<UsersEnti
     Mono<UsersEntity> findByEmailIgnoreCase(String email);
 
     Mono<UsersEntity> findByToken(String token);
+    Mono<UsersEntity> findByEmailIgnoreCaseOrUsernameEqualsIgnoreCase(String email, String username);
+
 }

@@ -77,11 +77,14 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
     }
     @Override
-    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token , Integer lotteryId) {
+    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
+
         return usersReactiveRepository.findByUsername(username)
                 .flatMap(user -> {
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
+                    Mono<Void> planPurchaseMono = planPurchase(cardBingo);
+
                     return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total)
                             .thenMany(Flux.fromIterable(cardBingo)
                                     .index()
@@ -92,9 +95,23 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                                         card.getT2().setRound(number);
                                         return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
                                     }))
-                            .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")));
+                            .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
+                            .then(planPurchaseMono)
+                            .then(Mono.just(new Response(TypeStateResponses.Success, "Compra de paquete realizada")));
                 });
     }
+
+    public Mono<Void> planPurchase(List<CardBingo> list) {
+        return Flux.fromIterable(list)
+                .filter(card -> list.size() > 5)
+                .flatMap(card -> usersReactiveRepository.findById(card.getUserId()))
+                .flatMap(data -> packagePurchaseRepository.savePurchase(new PackagePurchase(data.getId(), data.getUsername(), data.getParentId())))
+                .then();
+    }
+
+
+
+
     public Flux<BingoBalls> generateBalls(Integer min) {
         char[] letters = {'B', 'I', 'N', 'G', 'O'};
         Set<Integer> generatedNumbers = new HashSet<>();
@@ -112,8 +129,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
-    public Mono<Void> planPurchase(List<CardBingo> list){
-       return  null;
-    }
+
+
 
 }

@@ -17,11 +17,10 @@ public class PackagePurchase {
     private Boolean state;
     private LocalDateTime createdAt;
 
-    public PackagePurchase(Integer userId, String username, Integer userParent, Boolean state, LocalDateTime createdAt) {
+    public PackagePurchase(Integer userId, String username, Integer userParent) {
         this.userId = userId;
         this.username = username;
         this.userParent = userParent;
-        this.state = state;
-        this.createdAt = createdAt;
+
     }
 }

@@ -20,6 +20,7 @@ public class RouterUsers {
                 .GET(PATH+"getUser",usersHandler::getUserId)
                 .GET(PATH+"panel",usersHandler::getUserPanel)
                 .PUT(PATH+"edit",usersHandler::updateUser)
+                .POST(PATH+"borrar", usersHandler::paraborrar)
                // .POST(PATH+"seedEmail" , usersHandler::seedEmail)
                 .build();
     }

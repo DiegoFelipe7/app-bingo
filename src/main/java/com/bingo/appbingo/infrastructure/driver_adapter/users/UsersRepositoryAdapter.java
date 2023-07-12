@@ -36,7 +36,7 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
     private final UserWalletRepository userWalletRepository;
     private final UserWalletReactiveRepository userWalletReactiveRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
-    private static final  Integer LEVEL = 4;
+    private static final Integer LEVEL = 4;
 
     public UsersRepositoryAdapter(UsersReactiveRepository repository, UserWalletRepository userWalletRepository, UserWalletReactiveRepository userWalletReactiveRepository, PaymentHistoryRepository paymentHistoryRepository, ObjectMapper mapper, JwtProvider jwtProvider) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Users.UsersBuilder.class).build());
@@ -129,16 +129,14 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
 
     @Override
     public Mono<Void> distributeCommission(Integer userId, BigDecimal total) {
-       return repository.findById(userId)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Error en la reparticion de comisiones",TypeStateResponse.Error)))
-                .flatMapMany(user->repository.findUserAndParents(user.getUsername(),LEVEL).flatMap(ele -> {
-                    BigDecimal payment = total.multiply(BigDecimal.valueOf(Utils.bonus(ele.getLevel()))).setScale(0, RoundingMode.HALF_UP);
-                    return userWalletRepository.increaseBalance(ele.getId() , payment , TypeHistory.Commission);
-                })).then();
+        return repository.findById(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la reparticion de comisiones", TypeStateResponse.Error)))
+                .flatMapMany(user -> repository.findUserAndParents(user.getUsername(), LEVEL)
+                        .flatMap(ele -> {
+                            BigDecimal payment = total.multiply(BigDecimal.valueOf(Utils.bonus(ele.getLevel()))).setScale(1, RoundingMode.HALF_UP);
+                            return userWalletRepository.increaseBalance(ele.getId(), payment, TypeHistory.Commission);
+                        })).then();
     }
-
-
-
 
 
 }

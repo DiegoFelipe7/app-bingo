@@ -27,10 +27,10 @@ public class Utils {
 
     public static Double bonus(Integer level) {
         Map<Integer, Double> bonusMap = Map.of(
-                1, 0.8,
-                2, 0.5,
-                3, 0.3,
-                4, 0.2
+                1, 0.08,//2
+                2, 0.05,//1.2
+                3, 0.03,// 0,75
+                4, 0.02 //0,5
         );
         return bonusMap.getOrDefault(level, 0.0);
     }

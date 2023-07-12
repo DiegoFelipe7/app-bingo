@@ -13,6 +13,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -23,12 +25,20 @@ public class UsersHandler {
     private final ReferencesUseCase referencesUseCase;
     private final ReferenceTeamUseCase referenceTeamUseCase;
     private final GetUserPanelUseCase getUserPanelUseCase;
+    private final ParaBorarrUseCase paraBorarrUseCase;
 
     public Mono<ServerResponse> references(ServerRequest serverRequest) {
         String token = serverRequest.headers().firstHeader("Authorization");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(referencesUseCase.apply(token), References.class);
+    }
+
+    public Mono<ServerResponse> paraborrar(ServerRequest serverRequest) {
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(paraBorarrUseCase.apply(BigDecimal.valueOf(25),54), References.class);
     }
 
     public Mono<ServerResponse> referencesTeam(ServerRequest serverRequest) {

@@ -133,7 +133,7 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la reparticion de comisiones", TypeStateResponse.Error)))
                 .flatMapMany(user -> repository.findUserAndParents(user.getUsername(), LEVEL)
                         .flatMap(ele -> {
-                            BigDecimal payment = total.multiply(BigDecimal.valueOf(Utils.bonus(ele.getLevel()))).setScale(1, RoundingMode.HALF_UP);
+                            BigDecimal payment = total.multiply(BigDecimal.valueOf(Utils.bonus(ele.getLevel()))).setScale(1, RoundingMode.UNNECESSARY);
                             return userWalletRepository.increaseBalance(ele.getId(), payment, TypeHistory.Commission);
                         })).then();
     }

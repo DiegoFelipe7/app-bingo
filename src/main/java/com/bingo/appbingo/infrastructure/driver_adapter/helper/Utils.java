@@ -29,7 +29,7 @@ public class Utils {
         Map<Integer, Double> bonusMap = Map.of(
                 1, 0.08,//2
                 2, 0.05,//1.2
-                3, 0.03,// 0,75
+                3, 0.03,// 0,8
                 4, 0.02 //0,5
         );
         return bonusMap.getOrDefault(level, 0.0);

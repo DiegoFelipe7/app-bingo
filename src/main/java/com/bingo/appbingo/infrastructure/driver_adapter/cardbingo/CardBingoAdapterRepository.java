@@ -101,9 +101,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                                         card.getT2().setUserId(user.getId());
                                         card.getT2().setLotteryId(lotteryId);
                                         card.getT2().setRound(number);
-                                        return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()))
-                                                .onErrorMap(throwable -> new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar los datos", TypeStateResponse.Error));
-
+                                        return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
                                     }))
                             .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
                             .then(updateUser)

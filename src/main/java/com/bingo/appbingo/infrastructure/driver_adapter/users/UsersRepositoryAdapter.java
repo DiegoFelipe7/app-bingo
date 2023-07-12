@@ -6,12 +6,14 @@ import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.users.PanelUsers;
 import com.bingo.appbingo.domain.model.users.References;
 import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
+import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.UsersEntity;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.mapper.UserMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletEntity;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,13 +33,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Repository
 public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, UsersReactiveRepository> implements UserRepository {
     private final JwtProvider jwtProvider;
-    private final UserWalletReactiveRepository userWalletRepository;
+    private final UserWalletRepository userWalletRepository;
+    private final UserWalletReactiveRepository userWalletReactiveRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private static final  Integer LEVEL = 4;
 
-    public UsersRepositoryAdapter(UsersReactiveRepository repository, UserWalletReactiveRepository userWalletRepository, PaymentHistoryRepository paymentHistoryRepository, ObjectMapper mapper, JwtProvider jwtProvider) {
+    public UsersRepositoryAdapter(UsersReactiveRepository repository, UserWalletRepository userWalletRepository, UserWalletReactiveRepository userWalletReactiveRepository, PaymentHistoryRepository paymentHistoryRepository, ObjectMapper mapper, JwtProvider jwtProvider) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Users.UsersBuilder.class).build());
         this.jwtProvider = jwtProvider;
         this.userWalletRepository = userWalletRepository;
+        this.userWalletReactiveRepository = userWalletReactiveRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
 
@@ -102,13 +108,38 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
         String username = jwtProvider.extractToken(token);
         Mono<UsersEntity> usersEntity = repository.findByUsername(username);
         Mono<Long> referenceCount = repository.findUserAndDescendantsTeam(username).count();
-        Mono<UserWalletEntity> userWalletEntity = usersEntity.flatMap(user -> userWalletRepository.findByUserId(user.getId()));
+        Mono<UserWalletEntity> userWalletEntity = usersEntity.flatMap(user -> userWalletReactiveRepository.findByUserId(user.getId()));
         Mono<BigDecimal> balance = paymentHistoryRepository.filterPaymentHistory(TypeHistory.Earnings, token)
                 .reduce(BigDecimal.ZERO, (acc, res) -> acc.add(res.getBalance()));
         return Mono.zip(usersEntity, referenceCount, userWalletEntity, balance)
                 .flatMap(el -> Mono.just(new PanelUsers(el.getT1().getRefLink(), el.getT3().getBalance(), el.getT4(), el.getT2().intValue())));
 
     }
+
+    @Override
+    public Mono<Void> activateUserNetwork(Integer userId) {
+        return repository.findById(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un error, intentalo nuevamente", TypeStateResponse.Error)))
+                .flatMap(ele -> {
+                    ele.setId(ele.getId());
+                    ele.setValidForCommissions(Boolean.TRUE);
+                    return repository.save(ele);
+                }).then();
+    }
+
+    @Override
+    public Mono<Void> distributeCommission(Integer userId, BigDecimal total) {
+       return repository.findById(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Error en la reparticion de comisiones",TypeStateResponse.Error)))
+                .flatMapMany(user->repository.findUserAndParents(user.getUsername(),LEVEL).flatMap(ele -> {
+                    BigDecimal payment = total.multiply(BigDecimal.valueOf(Utils.bonus(ele.getLevel()))).setScale(0, RoundingMode.HALF_UP);
+                    System.out.println(payment);
+                    return userWalletRepository.increaseBalance(ele.getId() , total , TypeHistory.Commission);
+                })).then();
+    }
+
+
+
 
 
 }

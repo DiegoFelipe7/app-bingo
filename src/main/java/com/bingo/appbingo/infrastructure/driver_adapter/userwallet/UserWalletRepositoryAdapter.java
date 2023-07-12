@@ -2,8 +2,6 @@ package com.bingo.appbingo.infrastructure.driver_adapter.userwallet;
 
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
-import com.bingo.appbingo.domain.model.packagepurchase.PackagePurchase;
-import com.bingo.appbingo.domain.model.packagepurchase.gateway.PackagePurchaseRepository;
 import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -11,7 +9,6 @@ import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
-import com.bingo.appbingo.infrastructure.driver_adapter.history.PaymentHistoryReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.mapper.UserWalletMapper;
@@ -29,13 +26,12 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     private final JwtProvider jwtProvider;
     private final UsersReactiveRepository usersReactiveRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
-    private final PackagePurchaseRepository packagePurchaseRepository;
-    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository,PackagePurchaseRepository packagePurchaseRepository, ObjectMapper mapper, JwtProvider jwtProvider,PaymentHistoryRepository paymentHistoryRepository, UsersReactiveRepository usersReactiveRepository) {
+
+    public UserWalletRepositoryAdapter(UserWalletReactiveRepository repository , ObjectMapper mapper, JwtProvider jwtProvider,PaymentHistoryRepository paymentHistoryRepository, UsersReactiveRepository usersReactiveRepository) {
         super(repository, mapper, d -> mapper.mapBuilder(d, UserWallet.UserWalletBuilder.class).build());
         this.jwtProvider = jwtProvider;
         this.usersReactiveRepository = usersReactiveRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
-        this.packagePurchaseRepository=packagePurchaseRepository;
     }
 
 
@@ -70,13 +66,15 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     }
 
     @Override
-    public Mono<Void> increaseBalance(Integer userId, BigDecimal quantity) {
+    public Mono<Void> increaseBalance(Integer userId, BigDecimal quantity , TypeHistory typeHistory) {
         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
                     ele.setBalance(ele.getBalance().add(quantity));
                     ele.setUpdatedAt(LocalDateTime.now());
-                    return repository.save(ele);
+                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , typeHistory);
+                    Mono<UserWalletEntity> saveWallet = repository.save(ele);
+                    return Mono.when(saveWallet,savePaymentHistory);
                 }).then();
     }
 

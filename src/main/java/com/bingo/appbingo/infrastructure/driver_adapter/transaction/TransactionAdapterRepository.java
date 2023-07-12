@@ -136,11 +136,7 @@ public class TransactionAdapterRepository extends ReactiveAdapterOperations<Tran
                     ele.setUpdatedAt(LocalDateTime.now());
                     ele.setStateTransaction(StateTransaction.Completed);
                     return repository.save(ele)
-                            .flatMap(res -> {
-                                Mono<Void> updateUserWallet = userWalletRepository.increaseBalance(res.getUserId(), res.getPrice());
-                                Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(res.getUserId(), res.getPrice(), TypeHistory.Transaction);
-                                return Mono.when(updateUserWallet, savePaymentHistory);
-                            })
+                            .flatMap(res -> userWalletRepository.increaseBalance(res.getUserId(), res.getPrice(), TypeHistory.Transaction))
                             .thenReturn(new Response(TypeStateResponses.Success, "Transacción activada!"));
                 });
     }

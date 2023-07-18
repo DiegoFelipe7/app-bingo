@@ -18,6 +18,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Repository
@@ -52,10 +54,12 @@ public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordRese
 
     @Override
     public Mono<Response> passwordChange(String token, Login login) {
+        ZoneId colombiaZone = ZoneId.of("America/Bogota");
+        ZonedDateTime currentTime = ZonedDateTime.now(colombiaZone);
         return repository.findByToken(token)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.NOT_FOUND, "Lo sentimos, el token no es valido!", TypeStateResponse.Error)))
                 .flatMap(data -> {
-                    if (data.getDuration().isAfter(LocalDateTime.now())) {
+                    if (data.getDuration().isAfter(currentTime.toLocalDateTime())) {
                         return authReactiveRepository.findByEmailIgnoreCase(data.getEmail())
                                 .flatMap(ele -> {
                                     ele.setId(ele.getId());

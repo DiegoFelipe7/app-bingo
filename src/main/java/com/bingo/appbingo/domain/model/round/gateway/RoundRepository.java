@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RoundRepository {
     Mono<Void> saveRounds(List<Round> round , Integer lotteryId);
-    Flux<Round> getRoundId(Integer id);
+    Mono<Round> getRoundId(Integer id);
     Mono<Round> getLotteryRound(Integer lottery);
     Flux<Round> getAllRounds(Integer id);
     Mono<Round> getNumberRound(Integer id);

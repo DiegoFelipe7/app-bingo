@@ -45,9 +45,9 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     }
 
     @Override
-    public Flux<Round> getRoundId(Integer id) {
-        return repository.findAll()
-                .filter(ele -> ele.getId().equals(id))
+    public Mono<Round> getRoundId(Integer id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST , "Ocurrio un erro" , TypeStateResponse.Error)))
                 .map(RoundMapper::roundEntityARound);
     }
 

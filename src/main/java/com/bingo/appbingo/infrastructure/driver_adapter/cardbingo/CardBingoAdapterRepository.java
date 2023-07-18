@@ -82,10 +82,11 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     public Mono<CardBingo> getCardBingoRound(Integer id, Integer round, String token) {
         String username = jwtProvider.extractToken(token);
         return roundRepository.getRoundId(id)
-                .flatMap(data -> getCardBingo(id, username)
-                        .filter(ele -> ele.getRound().equals(data.getNumberRound())))
-                .single();
+                .flatMap(data -> getCardBingo(id, username).log()
+                        .filter(ele -> ele.getRound().equals(data.getNumberRound())).next());
+
     }
+
 
     @Override
     public Flux<CardBingo> getCardBingo(Integer id, String token) {

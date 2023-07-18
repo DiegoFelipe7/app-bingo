@@ -11,6 +11,7 @@ public class RoundMapper {
     public static Round roundEntityARound(RoundEntity roundEntity) {
         return Round.builder()
                 .id(roundEntity.getId())
+                .idLottery(roundEntity.getIdLottery())
                 .typeGame(roundEntity.getTypeGame())
                 .numberRound(roundEntity.getNumberRound())
                 .award(roundEntity.getAward())

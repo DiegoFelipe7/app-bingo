@@ -63,7 +63,7 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     public Flux<Round> getAllRounds(Integer id) {
         return repository.findAll()
                 .filter(ele -> ele.getIdLottery().equals(id) && ele.getCompleted().equals(Boolean.FALSE) && ele.getUserWinner() == null)
-                .map(RoundMapper::roundEntityARound).log()
+                .map(RoundMapper::roundEntityARound)
                 .sort(Comparator.comparing(Round::getNumberRound));
     }
 

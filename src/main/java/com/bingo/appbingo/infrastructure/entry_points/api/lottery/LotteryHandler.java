@@ -63,7 +63,6 @@ public class LotteryHandler {
     public Mono<ServerResponse> startRound(ServerRequest serverRequest){
         Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
-
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(startRoundUseCase.apply(lottery,id), Void.class);

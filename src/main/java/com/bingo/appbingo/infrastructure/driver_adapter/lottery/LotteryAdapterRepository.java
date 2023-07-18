@@ -41,6 +41,7 @@ public class LotteryAdapterRepository extends ReactiveAdapterOperations<Lottery,
 
 
 
+
     @Override
     public Flux<Lottery> getLottery() {
         return repository.findAll()

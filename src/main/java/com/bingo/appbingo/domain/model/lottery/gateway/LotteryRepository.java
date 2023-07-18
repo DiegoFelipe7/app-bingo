@@ -10,7 +10,6 @@ public interface LotteryRepository {
     Mono<Response> saveLottery(LotteryDto lotteryDto);
     Mono<Response> inactivateLottery();
 
-
     Flux<Lottery> getLottery();
     Mono<Lottery> getLotteryState();
 

@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Balls {
     private Integer id;
     private String ball;

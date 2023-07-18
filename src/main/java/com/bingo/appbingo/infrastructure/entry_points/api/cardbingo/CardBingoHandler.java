@@ -2,10 +2,7 @@ package com.bingo.appbingo.infrastructure.entry_points.api.cardbingo;
 
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.utils.Response;
-import com.bingo.appbingo.domain.usecase.cardbingo.GenerateCardBingoUseCase;
-import com.bingo.appbingo.domain.usecase.cardbingo.GetCardBingoUserUseCase;
-import com.bingo.appbingo.domain.usecase.cardbingo.SaveCardBingoUseCase;
-import com.bingo.appbingo.domain.usecase.cardbingo.ValidatePurchaseLotteryUseCase;
+import com.bingo.appbingo.domain.usecase.cardbingo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,6 +23,7 @@ public class CardBingoHandler {
     private final SaveCardBingoUseCase saveCardBingoUseCase;
     private final ValidatePurchaseLotteryUseCase validatePurchaseLotteryUseCase;
     private final GetCardBingoUserUseCase getCardBingoUserUseCase;
+    private final GetCardBingoRoundUseCase getCardBingoRoundUseCase;
     public Mono<ServerResponse> getAllCardBingo(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -56,6 +54,15 @@ public class CardBingoHandler {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getCardBingoUserUseCase.apply(id,token), CardBingo.class);
+    }
+
+    public Mono<ServerResponse> getCardBingoRound(ServerRequest serverRequest) {
+        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
+        Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(getCardBingoRoundUseCase.apply(lottery,roundId,token), CardBingo.class);
     }
 
 }

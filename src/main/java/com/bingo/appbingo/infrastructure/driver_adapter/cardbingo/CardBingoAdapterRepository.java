@@ -3,6 +3,8 @@ package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
+import com.bingo.appbingo.domain.model.round.Round;
+import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,13 +38,15 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final JwtProvider jwtProvider;
     private final PackagePurchaseReactiveRepository packagePurchaseRepository;
+    private final RoundRepository roundRepository;
     private static final BigDecimal price = BigDecimal.valueOf(5);
-    private static final Integer SIZE=25;
+    private static final Integer SIZE = 25;
 
-    public CardBingoAdapterRepository(CardBingoDBRepository repository,UserRepository userRepository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, JwtProvider jwtProvider, ObjectMapper mapper) {
+    public CardBingoAdapterRepository(CardBingoDBRepository repository, RoundRepository roundRepository, UserRepository userRepository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
+        this.roundRepository = roundRepository;
         this.userWalletRepositoryAdapter = userWalletRepositoryAdapter;
         this.jwtProvider = jwtProvider;
         this.packagePurchaseRepository = packagePurchaseRepository;
@@ -74,6 +79,15 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     }
 
     @Override
+    public Mono<CardBingo> getCardBingoRound(Integer id, Integer round, String token) {
+        String username = jwtProvider.extractToken(token);
+        return roundRepository.getRoundId(id)
+                .flatMap(data -> getCardBingo(id, username)
+                        .filter(ele -> ele.getRound().equals(data.getNumberRound())))
+                .single();
+    }
+
+    @Override
     public Flux<CardBingo> getCardBingo(Integer id, String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
@@ -81,14 +95,15 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                         .filter(data -> data.getState().equals(Boolean.TRUE) &&
                                 data.getLotteryId().equals(id) &&
                                 data.getUserId().equals(ele.getId())))
-                .map(CardBingoMapper::cardBingoEntityACardBingo);
+                .map(CardBingoMapper::cardBingoEntityACardBingo)
+                .sort(Comparator.comparing(CardBingo::getRound));
 
     }
 
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, Integer lotteryId) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Error en el token" , TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el token", TypeStateResponse.Error)))
                 .flatMap(user -> {
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
@@ -113,13 +128,11 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     public Mono<Void> planPurchase(BigDecimal total, Integer userId) {
         if (total.equals(BigDecimal.valueOf(SIZE))) {
             return usersReactiveRepository.findById(userId)
-                    .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername() ,data.getParentId())))
-                    .then(userRepository.distributeCommission(userId,total));
+                    .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername(), data.getParentId())))
+                    .then(userRepository.distributeCommission(userId, total));
         }
-        return userRepository.distributeCommission(userId,total);
+        return userRepository.distributeCommission(userId, total);
     }
-
-
 
 
     public Flux<BingoBalls> generateBalls(Integer min) {

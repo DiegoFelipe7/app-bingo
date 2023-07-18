@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +23,7 @@ public class RoundEntity {
     private TypeLottery typeGame;
     private Integer numberRound;
     private BigDecimal award;
+    private List<String> balls;
     private Integer userWinner;
     private Boolean completed;
     private LocalDateTime createdAt;

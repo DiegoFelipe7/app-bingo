@@ -17,6 +17,7 @@ public class RouterCardBingo {
                 .GET(PATH+"list" , cardBingoHandler::getAllCardBingo)
                 .POST(PATH+"save/{lotteryId}" , cardBingoHandler::saveCard)
                 .GET(PATH+"validate/{id}" , cardBingoHandler::validateIfPurchase)
+                .GET(PATH+"lottery/{lottery}/round/{round}", cardBingoHandler::getCardBingoRound)
                 .GET(PATH+"lottery/{id}/users" , cardBingoHandler::getAllCardBingoUser)
                 .build();
     }

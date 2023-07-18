@@ -9,7 +9,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Getter
 @Setter
 @Builder(toBuilder = true)
-@Table(name = "ball")
+@Table(name = "balls")
+@ToString
 public class BallsEntity {
     @Id
     private Integer id;

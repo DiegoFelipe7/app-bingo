@@ -13,8 +13,10 @@ public class RouterLottery {
     RouterFunction<ServerResponse> lotteryRouter(LotteryHandler lotteryHandler){
         return RouterFunctions.route()
                 .GET(PATH+"list" , lotteryHandler::getLottery)
+                .GET(PATH+"start/{lottery}" , lotteryHandler::getLotteryRound)
                 .GET(PATH+"awards/{id}" , lotteryHandler::getLotteryId)
                 .GET(PATH+"available" , lotteryHandler::getLotteryAvailable)
+                .GET(PATH+"start/{lottery}/round/{id}" , lotteryHandler::startRound)
                 .POST(PATH+"save",lotteryHandler::saveLottery)
                 .build();
     }

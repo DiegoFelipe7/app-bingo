@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class Round {
     private TypeLottery typeGame;
     private Integer numberRound;
     private BigDecimal award;
+    private List<String> balls;
     private Integer userWinner;
     private Boolean completed;
     private LocalDateTime createdAt;

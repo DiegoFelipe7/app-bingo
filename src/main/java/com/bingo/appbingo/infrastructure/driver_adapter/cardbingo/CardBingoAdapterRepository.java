@@ -127,6 +127,11 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
+    @Override
+    public Mono<Void> markBallot(Integer lotteryId, Integer round, String ball, String token) {
+        return null;
+    }
+
     public Mono<Void> planPurchase(BigDecimal total, Integer userId) {
         if (total.equals(BigDecimal.valueOf(SIZE))) {
             return usersReactiveRepository.findById(userId)

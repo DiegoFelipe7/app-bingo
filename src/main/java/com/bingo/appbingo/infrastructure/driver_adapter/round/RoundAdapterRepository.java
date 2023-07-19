@@ -24,10 +24,11 @@ import java.util.List;
 public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, RoundEntity, Integer, RoundReactiveRepository> implements RoundRepository {
     private final BallRepository ballRepository;
     private final LotteryReactiveRepository lotteryRepository;
-    public RoundAdapterRepository(RoundReactiveRepository repository, LotteryReactiveRepository lotteryRepository,BallRepository ballRepository, ObjectMapper mapper) {
+
+    public RoundAdapterRepository(RoundReactiveRepository repository, LotteryReactiveRepository lotteryRepository, BallRepository ballRepository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Round.RoundBuilder.class).build());
         this.ballRepository = ballRepository;
-        this.lotteryRepository=lotteryRepository;
+        this.lotteryRepository = lotteryRepository;
     }
 
     @Override
@@ -47,16 +48,16 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     @Override
     public Mono<Round> getRoundId(Integer id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST , "Ocurrio un erro" , TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un erro", TypeStateResponse.Error)))
                 .map(RoundMapper::roundEntityARound);
     }
 
     @Override
     public Mono<Round> getLotteryRound(Integer lottery) {
         return lotteryRepository.findById(lottery)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Id de la loterria invalido",TypeStateResponse.Error)))
-                .filter(ele->ele.getState().equals(Boolean.TRUE))
-                .flatMap(ele->getAllRounds(ele.getId()).next().log());
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Id de la loterria invalido", TypeStateResponse.Error)))
+                .filter(ele -> ele.getState().equals(Boolean.TRUE))
+                .flatMap(ele -> getAllRounds(ele.getId()).next().log());
     }
 
     @Override
@@ -70,7 +71,7 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     @Override
     public Mono<Round> getNumberRound(Integer id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Error en la ronda" , TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
                 .map(RoundMapper::roundEntityARound);
     }
 
@@ -86,6 +87,14 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
                             return repository.save(ele).log();
                         }))
                 .then();
+    }
+
+    @Override
+    public Mono<Boolean> validBalls(Integer id, String ball) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
+                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data->data.equals(ball)))
+                .defaultIfEmpty(false);
     }
 
 

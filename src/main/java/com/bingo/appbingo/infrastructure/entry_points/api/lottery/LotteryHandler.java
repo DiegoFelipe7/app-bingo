@@ -4,10 +4,7 @@ import com.bingo.appbingo.domain.model.lottery.Lottery;
 import com.bingo.appbingo.domain.model.lottery.LotteryDto;
 import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.utils.Response;
-import com.bingo.appbingo.domain.usecase.lottery.GetAllLotteryUseCase;
-import com.bingo.appbingo.domain.usecase.lottery.GetLotteryAvailableUseCase;
-import com.bingo.appbingo.domain.usecase.lottery.GetLotteryIdUseCase;
-import com.bingo.appbingo.domain.usecase.lottery.SaveLotteryUseCase;
+import com.bingo.appbingo.domain.usecase.lottery.*;
 import com.bingo.appbingo.domain.usecase.round.GetLotteryRoundUseCase;
 import com.bingo.appbingo.domain.usecase.round.StartRoundUseCase;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +25,7 @@ public class LotteryHandler {
     private final GetLotteryAvailableUseCase getLotteryAvailableUseCase;
     private final StartRoundUseCase startRoundUseCase;
     private final GetLotteryRoundUseCase getLotteryRoundUseCase;
+    private final GetLotteryStarAdminUseCase getLotteryStarAdminUseCase;
 
     public Mono<ServerResponse> saveLottery(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(LotteryDto.class)
@@ -41,7 +39,11 @@ public class LotteryHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getLotteryRoundUseCase.apply(lottery), Round.class);
     }
-
+    public Mono<ServerResponse> getLotteryStartAdmin(ServerRequest serverRequest) {
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(getLotteryStarAdminUseCase.get(), LotteryDto.class);
+    }
     public Mono<ServerResponse> getLotteryAvailable(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -14,6 +14,7 @@ public class RouterLottery {
         return RouterFunctions.route()
                 .GET(PATH+"list" , lotteryHandler::getLottery)
                 .GET(PATH+"start/{lottery}" , lotteryHandler::getLotteryRound)
+                .GET(PATH+"available/admin" , lotteryHandler::getLotteryStartAdmin)
                 .GET(PATH+"awards/{id}" , lotteryHandler::getLotteryId)
                 .GET(PATH+"available" , lotteryHandler::getLotteryAvailable)
                 .GET(PATH+"start/{lottery}/round/{id}" , lotteryHandler::startRound)

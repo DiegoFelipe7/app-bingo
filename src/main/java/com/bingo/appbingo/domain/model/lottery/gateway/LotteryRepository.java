@@ -15,4 +15,6 @@ public interface LotteryRepository {
 
     Mono<LotteryDto> getLotteryId(Integer id);
 
+    Mono<LotteryDto> getLotteryStartAdmin();
+
 }

@@ -65,5 +65,10 @@ public class LotteryAdapterRepository extends ReactiveAdapterOperations<Lottery,
                         .map(res -> LotteryMapper.lotteryDto(ele, res)));
     }
 
+    @Override
+    public Mono<LotteryDto> getLotteryStartAdmin() {
+        return getLotteryState()
+                .flatMap(ele->getLotteryId(ele.getId()));
+    }
 
 }

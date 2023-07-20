@@ -3,6 +3,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
+import com.bingo.appbingo.domain.model.enums.TypeLottery;
 import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
@@ -79,23 +80,22 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     }
 
     @Override
-    public Mono<CardBingo> getCardBingoRound(Integer id, Integer round, String token) {
-//        return roundRepository.getRoundId(round)
-//                .flatMap(ele -> {
-//                    return getCardBingo(id, token).filter(data -> data.getRound().equals(ele.getNumberRound())).next();
-//                });
-        return getCardBingo(id, token).filter(ele -> ele.getRound().equals(round)).next();
-
+    public Mono<CardBingo> getCardBingoRound(Integer lotteryId, Integer round, String token) {
+        return roundRepository.getRoundId(round)
+                .flatMap(ele -> getCardBingo(lotteryId, token)
+                        .filter(data -> data.getRound().equals(ele.getNumberRound()))
+                        .next());
     }
 
 
     @Override
-    public Flux<CardBingo> getCardBingo(Integer id, String token) {
+    public Flux<CardBingo> getCardBingo(Integer lotteryId, String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el token", TypeStateResponse.Error)))
                 .flatMapMany(ele -> repository.findAll()
                         .filter(data -> data.getState().equals(Boolean.TRUE) &&
-                                data.getLotteryId().equals(id) &&
+                                data.getLotteryId().equals(lotteryId) &&
                                 data.getUserId().equals(ele.getId())))
                 .map(CardBingoMapper::cardBingoEntityACardBingo)
                 .sort(Comparator.comparing(CardBingo::getRound));
@@ -129,7 +129,13 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
     @Override
     public Mono<Void> markBallot(Integer lotteryId, Integer round, String ball, String token) {
-        return null;
+        return roundRepository.getRoundId(round)
+                .flatMap(ele -> {
+                    if (ele.getTypeGame().equals(TypeLottery.L)) {
+                        return maricada(round, ball);
+                    }
+                    return Mono.empty();
+                });
     }
 
     public Mono<Void> planPurchase(BigDecimal total, Integer userId) {
@@ -139,6 +145,19 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                     .then(userRepository.distributeCommission(userId, total));
         }
         return userRepository.distributeCommission(userId, total);
+    }
+
+
+    public Mono<Void> maricada(Integer round, String ball) {
+        return roundRepository.validBalls(round, ball)
+                .flatMap(ele -> {
+                    if (!ele) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
+                    }
+
+
+return  null;
+                });
     }
 
 

@@ -60,9 +60,13 @@ public class CardBingoHandler {
         Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
         Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
         String token = serverRequest.headers().firstHeader("Authorization");
-        return ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(getCardBingoRoundUseCase.apply(lottery,roundId,token), CardBingo.class);
+        Mono<CardBingo> cardBingoMono = getCardBingoRoundUseCase.apply(lottery, roundId, token);
+        return cardBingoMono
+                .flatMap(cardBingo ->
+                        ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(cardBingo))
+                .switchIfEmpty(ServerResponse.noContent().build());
     }
 
 }

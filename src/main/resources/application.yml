@@ -5,9 +5,9 @@ spring:
     suffix: .html
     check-template-location: false
   r2dbc:
-    url: r2dbc:postgresql://3.140.1.248:5432/bd-prueba
+    url: r2dbc:postgresql://167.86.126.237/betbillions
     username: postgres
-    password: evoxproduccion
+    password: Lider123**
   application:
     name: betbillions
   data:

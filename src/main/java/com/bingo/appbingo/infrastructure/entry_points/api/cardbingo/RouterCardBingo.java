@@ -19,6 +19,7 @@ public class RouterCardBingo {
                 .GET(PATH+"validate/{id}" , cardBingoHandler::validateIfPurchase)
                 .GET(PATH+"lottery/{lottery}/round/{roundId}", cardBingoHandler::getCardBingoRound)
                 .GET(PATH+"lottery/{id}/users" , cardBingoHandler::getAllCardBingoUser)
+                .PATCH(PATH+"lottery/{lotteryId}/round/{roundId}/ball/{ball}" , cardBingoHandler::markBallot)
                 .build();
     }
 }

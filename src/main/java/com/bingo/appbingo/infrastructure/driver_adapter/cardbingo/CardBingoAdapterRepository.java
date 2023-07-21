@@ -127,16 +127,62 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                 });
     }
 
+
     @Override
     public Mono<Void> markBallot(Integer lotteryId, Integer round, String ball, String token) {
-        return roundRepository.getRoundId(round)
+       return roundRepository.getRoundId(round)
                 .flatMap(ele -> {
                     if (ele.getTypeGame().equals(TypeLottery.L)) {
-                        return maricada(round, ball);
+                        return roundRepository.validBalls(ele.getId(), ball)
+                                .flatMap(data -> {
+                                    if (Boolean.FALSE.equals(data)) {
+                                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
+                                    }
+                                    return processTypeL(lotteryId, ele.getNumberRound(), ball, token);
+                                });
                     }
-                    return Mono.empty();
+                    return roundRepository.validBalls(ele.getId(), ball)
+                            .flatMap(data -> {
+                                if (Boolean.FALSE.equals(data)) {
+                                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
+                                }
+                                return processTypeX(lotteryId, ele.getNumberRound(), ball, token);
+                            });
                 });
     }
+
+    public Mono<Void> processTypeL(Integer lotteryId, Integer round, String ball, String token) {
+        return getCardBingoRound(lotteryId, round, token)
+                .flatMap(card -> {
+                    List<Integer> indexes = List.of(0,1,2,3,4,9, 14, 19, 24);
+                    if (indexes.stream().anyMatch(index -> card.getCard().get(index).getNumbers().equals(ball))) {
+                        return updateMarkedBallot(card,ball);
+                    }
+                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
+                }).then();
+    }
+    public Mono<Void> processTypeX(Integer lotteryId, Integer round, String ball, String token){
+        return getCardBingoRound(lotteryId, round, token)
+                .flatMap(card -> {
+                    List<Integer> indexes = List.of(0,4,6,8,12,16, 18, 20,24);
+                    if (indexes.stream().anyMatch(index -> card.getCard().get(index).getNumbers().equals(ball))) {
+                        return updateMarkedBallot(card,ball);
+                    }
+                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
+                }).then();
+    }
+
+
+    public Mono<CardBingoEntity> updateMarkedBallot(CardBingo card , String ball){
+     return Flux.fromIterable(card.getCard())
+                .filter(numBingo -> numBingo.getNumbers().equals(ball))
+                .next()
+                .flatMap(numberBingo -> {
+                    numberBingo.setState(true);
+                    return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card));
+                });
+    }
+
 
     public Mono<Void> planPurchase(BigDecimal total, Integer userId) {
         if (total.equals(BigDecimal.valueOf(SIZE))) {
@@ -145,19 +191,6 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                     .then(userRepository.distributeCommission(userId, total));
         }
         return userRepository.distributeCommission(userId, total);
-    }
-
-
-    public Mono<Void> maricada(Integer round, String ball) {
-        return roundRepository.validBalls(round, ball)
-                .flatMap(ele -> {
-                    if (!ele) {
-                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
-                    }
-
-
-return  null;
-                });
     }
 
 

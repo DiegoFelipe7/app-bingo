@@ -84,7 +84,7 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
                             List<String> list = new ArrayList<>(ele.getBalls());
                             list.add(ball.getBall());
                             ele.setBalls(list);
-                            return repository.save(ele).log();
+                            return repository.save(ele);
                         }))
                 .then();
     }

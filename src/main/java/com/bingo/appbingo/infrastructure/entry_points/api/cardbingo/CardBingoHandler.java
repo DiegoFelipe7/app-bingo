@@ -24,6 +24,7 @@ public class CardBingoHandler {
     private final ValidatePurchaseLotteryUseCase validatePurchaseLotteryUseCase;
     private final GetCardBingoUserUseCase getCardBingoUserUseCase;
     private final GetCardBingoRoundUseCase getCardBingoRoundUseCase;
+    private final MarkBallotUseCase markBallotUseCase;
     public Mono<ServerResponse> getAllCardBingo(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -67,6 +68,16 @@ public class CardBingoHandler {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(cardBingo))
                 .switchIfEmpty(ServerResponse.noContent().build());
+    }
+
+    public Mono<ServerResponse> markBallot(ServerRequest serverRequest) {
+        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
+        Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
+        String ball = serverRequest.pathVariable("ball");
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(markBallotUseCase.apply(lottery,roundId,ball,token), Void.class);
     }
 
 }

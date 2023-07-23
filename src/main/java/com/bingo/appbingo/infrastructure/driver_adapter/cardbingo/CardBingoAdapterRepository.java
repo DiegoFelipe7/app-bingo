@@ -4,7 +4,6 @@ import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
 import com.bingo.appbingo.domain.model.enums.TypeLottery;
-import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -129,8 +128,8 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
 
 
     @Override
-    public Mono<Void> markBallot(Integer lotteryId, Integer round, String ball, String token) {
-       return roundRepository.getRoundId(round)
+    public Mono<BingoBalls> markBallot(Integer lotteryId, Integer round, String ball, String token) {
+        return roundRepository.getRoundId(round)
                 .flatMap(ele -> {
                     if (ele.getTypeGame().equals(TypeLottery.L)) {
                         return roundRepository.validBalls(ele.getId(), ball)
@@ -138,51 +137,62 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                                     if (Boolean.FALSE.equals(data)) {
                                         return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
                                     }
-                                    return processTypeL(lotteryId, ele.getNumberRound(), ball, token);
+                                    return processTypeLAndX(lotteryId, ele.getNumberRound(), ball, token , ele.getTypeGame());
                                 });
                     }
-                    return roundRepository.validBalls(ele.getId(), ball)
-                            .flatMap(data -> {
-                                if (Boolean.FALSE.equals(data)) {
-                                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
-                                }
-                                return processTypeX(lotteryId, ele.getNumberRound(), ball, token);
-                            });
+                    return processTypeLAndX(lotteryId, ele.getNumberRound(), ball, token,ele.getTypeGame());
                 });
     }
 
-    public Mono<Void> processTypeL(Integer lotteryId, Integer round, String ball, String token) {
-        return getCardBingoRound(lotteryId, round, token)
-                .flatMap(card -> {
-                    List<Integer> indexes = List.of(0,1,2,3,4,9, 14, 19, 24);
-                    if (indexes.stream().anyMatch(index -> card.getCard().get(index).getNumbers().equals(ball))) {
-                        return updateMarkedBallot(card,ball);
+    @Override
+    public Mono<Response> winnerBingo(Integer lotteryId, Integer round, String token) {
+        return roundRepository.getRoundId(round)
+                .flatMap(ele -> {
+                    if (ele.getTypeGame().equals(TypeLottery.X)) {
+                        return getCardBingoRound(lotteryId, round, token)
+                                .flatMap(card -> {
+                                    List<Integer> indexes = Utils.processTypeGame(ele.getTypeGame());
+                                    if (indexes.stream().allMatch(index -> card.getCard().get(index).getState().equals(Boolean.TRUE))) {
+                                        return roundRepository.winnerRound(ele.getId(),card.getUserId());
+                                    }
+                                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El bingo no esta completo", TypeStateResponse.Warning));
+                                });
+                    } else {
+                        return getCardBingoRound(lotteryId, round, token)
+                                .flatMap(card -> {
+                                    List<Integer> indexes = List.of(0, 1, 2, 3, 4, 9, 14, 19, 24);
+                                    if (indexes.stream().allMatch(index -> card.getCard().get(index).getState().equals(Boolean.TRUE))) {
+                                        return roundRepository.winnerRound(ele.getId(),card.getUserId());
+                                    }
+                                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El bingo no esta completo", TypeStateResponse.Warning));
+                                });
+
                     }
-                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
-                }).then();
-    }
-    public Mono<Void> processTypeX(Integer lotteryId, Integer round, String ball, String token){
-        return getCardBingoRound(lotteryId, round, token)
-                .flatMap(card -> {
-                    List<Integer> indexes = List.of(0,4,6,8,12,16, 18, 20,24);
-                    if (indexes.stream().anyMatch(index -> card.getCard().get(index).getNumbers().equals(ball))) {
-                        return updateMarkedBallot(card,ball);
-                    }
-                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
-                }).then();
+
+                });
     }
 
 
-    public Mono<CardBingoEntity> updateMarkedBallot(CardBingo card , String ball){
-     return Flux.fromIterable(card.getCard())
+
+    public Mono<BingoBalls> processTypeLAndX(Integer lotteryId, Integer round, String ball, String token , TypeLottery typeLottery) {
+        return getCardBingoRound(lotteryId, round, token)
+                .flatMap(card -> {
+                    List<Integer> indexes = Utils.processTypeGame(typeLottery);
+                    if (indexes.stream().anyMatch(index -> card.getCard().get(index).getNumbers().equals(ball))) {
+                        return updateMarkedBallot(card, ball);
+                    }
+                    return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
+                });
+    }
+    public Mono<BingoBalls> updateMarkedBallot(CardBingo card, String ball) {
+        return Flux.fromIterable(card.getCard())
                 .filter(numBingo -> numBingo.getNumbers().equals(ball))
                 .next()
                 .flatMap(numberBingo -> {
                     numberBingo.setState(true);
-                    return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card));
+                    return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card)).thenReturn(numberBingo);
                 });
     }
-
 
     public Mono<Void> planPurchase(BigDecimal total, Integer userId) {
         if (total.equals(BigDecimal.valueOf(SIZE))) {
@@ -192,7 +202,6 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
         }
         return userRepository.distributeCommission(userId, total);
     }
-
 
     public Flux<BingoBalls> generateBalls(Integer min) {
         char[] letters = {'B', 'I', 'N', 'G', 'O'};

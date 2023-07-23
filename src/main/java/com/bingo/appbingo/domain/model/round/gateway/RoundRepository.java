@@ -1,6 +1,7 @@
 package com.bingo.appbingo.domain.model.round.gateway;
 
 import com.bingo.appbingo.domain.model.round.Round;
+import com.bingo.appbingo.domain.model.utils.Response;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.util.List;
@@ -14,4 +15,6 @@ public interface RoundRepository {
     Mono<Void> saveBall(Integer lottery , Integer round);
 
     Mono<Boolean> validBalls(Integer id , String ball);
+
+    Mono<Response> winnerRound(Integer id ,Integer userId);
 }

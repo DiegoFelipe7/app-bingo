@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.entry_points.api.cardbingo;
 
+import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.cardbingo.*;
@@ -25,6 +26,8 @@ public class CardBingoHandler {
     private final GetCardBingoUserUseCase getCardBingoUserUseCase;
     private final GetCardBingoRoundUseCase getCardBingoRoundUseCase;
     private final MarkBallotUseCase markBallotUseCase;
+
+    private  final WinnerBingoUseCase winnerBingoUseCase;
     public Mono<ServerResponse> getAllCardBingo(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -77,7 +80,16 @@ public class CardBingoHandler {
         String token = serverRequest.headers().firstHeader("Authorization");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(markBallotUseCase.apply(lottery,roundId,ball,token), Void.class);
+                .body(markBallotUseCase.apply(lottery,roundId,ball,token), BingoBalls.class);
+    }
+
+    public Mono<ServerResponse> winnerBingo(ServerRequest serverRequest) {
+        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
+        Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
+        String token = serverRequest.headers().firstHeader("Authorization");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(winnerBingoUseCase.apply(lottery,roundId,token), Response.class);
     }
 
 }

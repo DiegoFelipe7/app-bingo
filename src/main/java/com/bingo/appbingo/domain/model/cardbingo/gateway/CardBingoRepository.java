@@ -19,5 +19,7 @@ public interface CardBingoRepository {
     Flux<CardBingo> getCardBingo(Integer id , String token);
     Mono<Response> saveCardBingo(List<CardBingo> cardBingo , String token , Integer lotteryId);
 
-    Mono<Void> markBallot(Integer lotteryId , Integer round , String ball , String token);
+    Mono<BingoBalls>  markBallot(Integer lotteryId , Integer round , String ball , String token);
+
+    Mono<Response> winnerBingo(Integer lotteryId , Integer round , String token);
 }

@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.helper;
 
+import com.bingo.appbingo.domain.model.enums.TypeLottery;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
@@ -7,6 +8,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -50,6 +52,13 @@ public class Utils {
             return BigDecimal.valueOf(5);
         }
         return BigDecimal.valueOf(size);
+    }
+
+    public static List<Integer> processTypeGame(TypeLottery typeLottery){
+        if(typeLottery.equals(TypeLottery.L)){
+            return List.of(0, 1, 2, 3, 4, 9, 14, 19, 24);
+        }
+        return  List.of(0, 4, 6, 8, 12, 16, 18, 20, 24);
     }
 
 

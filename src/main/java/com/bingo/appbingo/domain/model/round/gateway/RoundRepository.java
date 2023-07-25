@@ -12,6 +12,7 @@ public interface RoundRepository {
     Mono<Round> getLotteryRound(Integer lottery);
     Flux<Round> getAllRounds(Integer id);
     Mono<Round> getNumberRound(Integer id);
+    Mono<Response> noRoundWinner(Integer id);
     Mono<Void> saveBall(Integer lottery , Integer round);
 
     Mono<Boolean> validBalls(Integer id , String ball);

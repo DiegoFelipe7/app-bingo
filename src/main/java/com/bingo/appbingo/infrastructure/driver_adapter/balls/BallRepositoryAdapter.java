@@ -34,7 +34,7 @@ public class BallRepositoryAdapter extends ReactiveAdapterOperations<Balls, Ball
                     List<Balls> randomBalls = getRandomElements(list, 75);
                     return Flux.fromIterable(randomBalls);
                 })
-                .delayElements(Duration.ofSeconds(5))
+                .delayElements(Duration.ofSeconds(10))
                 .subscribeOn(Schedulers.parallel());
     }
 

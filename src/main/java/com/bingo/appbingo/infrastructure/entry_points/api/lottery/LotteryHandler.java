@@ -10,6 +10,7 @@ import com.bingo.appbingo.domain.usecase.round.StartRoundUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -27,6 +28,7 @@ public class LotteryHandler {
     private final GetLotteryRoundUseCase getLotteryRoundUseCase;
     private final GetLotteryStarAdminUseCase getLotteryStarAdminUseCase;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> saveLottery(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(LotteryDto.class)
                 .flatMap(ele -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
@@ -39,6 +41,8 @@ public class LotteryHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getLotteryRoundUseCase.apply(lottery), Round.class);
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> getLotteryStartAdmin(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +65,7 @@ public class LotteryHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getLotteryIdUseCase.apply(id), LotteryDto.class);
     }
-
+    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> startRound(ServerRequest serverRequest){
         Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));

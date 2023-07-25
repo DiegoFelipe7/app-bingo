@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,11 +31,11 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final LotteryReactiveRepository lotteryRepository;
 
-    public RoundAdapterRepository(RoundReactiveRepository repository,UserWalletRepositoryAdapter userWalletRepositoryAdapter, LotteryReactiveRepository lotteryRepository, BallRepository ballRepository, ObjectMapper mapper) {
+    public RoundAdapterRepository(RoundReactiveRepository repository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, LotteryReactiveRepository lotteryRepository, BallRepository ballRepository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Round.RoundBuilder.class).build());
         this.ballRepository = ballRepository;
         this.lotteryRepository = lotteryRepository;
-        this.userWalletRepositoryAdapter=userWalletRepositoryAdapter;
+        this.userWalletRepositoryAdapter = userWalletRepositoryAdapter;
     }
 
     @Override
@@ -82,8 +83,21 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     }
 
     @Override
+    public Mono<Response> noRoundWinner(Integer id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
+                .flatMap(ele -> {
+                    ele.setUserWinner(1);
+                    ele.setCompleted(Boolean.TRUE);
+                    ele.setUpdatedAt(LocalDateTime.now());
+                    return repository.save(ele)
+                            .thenReturn(new Response(TypeStateResponses.Success, "Configuracion realizada"));
+                });
+    }
+
+    @Override
     public Mono<Void> saveBall(Integer lottery, Integer id) {
-        return ballRepository.getAllBall().log()
+        return ballRepository.getAllBall()
                 .flatMap(ball -> repository.findByIdLotteryAndNumberRound(lottery, id)
                         .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
                         .flatMap(ele -> {
@@ -99,7 +113,7 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     public Mono<Boolean> validBalls(Integer id, String ball) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
-                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data->data.equals(ball)))
+                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball)))
                 .defaultIfEmpty(false);
     }
 
@@ -115,10 +129,9 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
                     round.setUserWinner(userId);
                     return repository.save(round)
                             .flatMap(savedRound -> userWalletRepositoryAdapter.increaseBalance(userId, savedRound.getAward(), TypeHistory.Earnings)
-                                        .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
+                                    .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
                 });
     }
-
 
 
 }

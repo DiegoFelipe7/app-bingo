@@ -7,6 +7,7 @@ import com.bingo.appbingo.domain.usecase.transaction.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -25,13 +26,13 @@ public class TransactionHandler {
 
     private final InvalidTransactionUseCase invalidTransactionUseCase;
 
-   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> getAllTransaction(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getAllTransactionUseCase.get(), TransactionDto.class);
     }
-   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> getAllTransactionId(ServerRequest serverRequest) {
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
         return ServerResponse.ok()
@@ -55,7 +56,7 @@ public class TransactionHandler {
                         .body(saveTransactionUserNetworkUseCase.apply(ele, token), Response.class));
     }
 
-   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> validateTransaction(ServerRequest serverRequest) {
         String transaction = serverRequest.pathVariable("transaction");
         return serverRequest.bodyToMono(Transaction.class)
@@ -64,6 +65,7 @@ public class TransactionHandler {
                         .body(validateTransactionUseCase.apply(transaction , ele), Response.class));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> validateUserNetwork(ServerRequest serverRequest) {
         String transaction = serverRequest.pathVariable("transaction");
         return serverRequest.bodyToMono(Transaction.class)
@@ -72,7 +74,7 @@ public class TransactionHandler {
                         .body(validateTransactionUserNetworkUseCase.apply(transaction), Response.class));
     }
 
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> invalidTransaction(ServerRequest serverRequest) {
         String transaction = serverRequest.pathVariable("transaction");
         return serverRequest.bodyToMono(Transaction.class)

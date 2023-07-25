@@ -113,7 +113,7 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
     public Mono<Boolean> validBalls(Integer id, String ball) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
-                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball)))
+                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball))).log()
                 .defaultIfEmpty(false);
     }
 

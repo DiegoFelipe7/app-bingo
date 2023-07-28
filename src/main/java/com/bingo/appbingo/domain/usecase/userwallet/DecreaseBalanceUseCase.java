@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
 public class DecreaseBalanceUseCase  implements BiFunction<Integer,BigDecimal , Mono<Void> > {
-    private final UserWalletRepository userWalletRepository;
+    private final UserWalletRepository userWalletRepositoryAdapter;
 
     @Override
     public Mono<Void> apply(Integer integer, BigDecimal bigDecimal) {

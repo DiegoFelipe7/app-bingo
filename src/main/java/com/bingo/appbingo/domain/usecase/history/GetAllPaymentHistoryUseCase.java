@@ -10,9 +10,9 @@ import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class GetAllPaymentHistoryUseCase implements Function<String , Flux<PaymentHistory>> {
-    private final PaymentHistoryRepository paymentHistoryRepository;
+    private final PaymentHistoryRepository paymentHistoryRepositoryAdapter;
     @Override
     public Flux<PaymentHistory> apply(String token) {
-        return paymentHistoryRepository.listPayment(token);
+        return paymentHistoryRepositoryAdapter.listPayment(token);
     }
 }

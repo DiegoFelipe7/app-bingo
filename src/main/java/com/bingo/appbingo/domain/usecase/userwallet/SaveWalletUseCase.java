@@ -9,9 +9,9 @@ import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
 public class SaveWalletUseCase implements BiFunction<String, String , Mono<Response>> {
-    private final UserWalletRepository userWalletRepository;
+    private final UserWalletRepository userWalletRepositoryAdapter;
     @Override
     public Mono<Response> apply(String token, String wallet) {
-        return userWalletRepository.saveWallet(token,wallet);
+        return userWalletRepositoryAdapter.saveWallet(token,wallet);
     }
 }

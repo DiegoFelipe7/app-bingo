@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
-public interface UserRepository {
+public interface UsersRepository {
     Flux<References> getAllReferences(String token);
 
     Flux<References> getAllReferencesTeam(String token);
@@ -18,8 +18,8 @@ public interface UserRepository {
 
     Mono<Response> editUser(Users user);
 
-    Mono<Users> getUserId(String token);
-
+    Mono<Users> getUserIdToken(String token);
+    Mono<Users> getUserId(Integer id);
     Mono<PanelUsers> panelUser(String token);
 
     Mono<Void> activateUserNetwork(Integer userId);

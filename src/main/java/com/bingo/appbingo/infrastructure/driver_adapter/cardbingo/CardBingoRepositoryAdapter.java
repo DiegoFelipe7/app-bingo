@@ -3,9 +3,10 @@ package com.bingo.appbingo.infrastructure.driver_adapter.cardbingo;
 import com.bingo.appbingo.domain.model.cardbingo.BingoBalls;
 import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
+import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.enums.TypeLottery;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
-import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
+import com.bingo.appbingo.domain.model.users.gateway.UsersRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.cardbingo.mapper.CardBingoMapper;
@@ -32,9 +33,9 @@ import java.util.Set;
 
 
 @Repository
-public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, CardBingoEntity, String, CardBingoDBRepository> implements CardBingoRepository {
+public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, CardBingoEntity, String, CardBingoDBRepository> implements CardBingoRepository {
     private final UsersReactiveRepository usersReactiveRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final JwtProvider jwtProvider;
     private final PackagePurchaseReactiveRepository packagePurchaseRepository;
@@ -42,7 +43,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     private static final BigDecimal price = BigDecimal.valueOf(5);
     private static final Integer SIZE = 25;
 
-    public CardBingoAdapterRepository(CardBingoDBRepository repository, RoundRepository roundRepository, UserRepository userRepository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, JwtProvider jwtProvider, ObjectMapper mapper) {
+    public CardBingoRepositoryAdapter(CardBingoDBRepository repository, RoundRepository roundRepository, UsersRepository userRepository, UsersReactiveRepository usersReactiveRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.userRepository = userRepository;
@@ -109,7 +110,7 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
                     Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());
-                    return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total)
+                    return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total , TypeHistory.Shopping)
                             .thenMany(Flux.fromIterable(cardBingo)
                                     .index()
                                     .concatMap(card -> {
@@ -131,12 +132,12 @@ public class CardBingoAdapterRepository extends AdapterOperations<CardBingo, Car
     public Mono<BingoBalls> markBallot(Integer lotteryId, Integer round, String ball, String token) {
         return roundRepository.getRoundId(round)
                 .flatMap(ele -> roundRepository.validBalls(ele.getId(), ball)
-                                .flatMap(data -> {
-                                    if (Boolean.FALSE.equals(data)) {
-                                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
-                                    }
-                                    return processTypeLAndX(lotteryId, ele.getNumberRound(), ball, token , ele.getTypeGame());
-                                }));
+                        .flatMap(data -> {
+                            if (Boolean.FALSE.equals(data)) {
+                                return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
+                            }
+                            return processTypeLAndX(lotteryId, ele.getNumberRound(), ball, token , ele.getTypeGame());
+                        }));
     }
 
 

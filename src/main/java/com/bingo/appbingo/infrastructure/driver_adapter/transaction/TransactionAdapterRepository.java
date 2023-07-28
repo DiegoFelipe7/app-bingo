@@ -10,14 +10,16 @@ import com.bingo.appbingo.domain.model.transaction.gateway.TransactionRepository
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
-import com.bingo.appbingo.domain.usecase.userwallet.SaveWalletUseCase;
 import com.bingo.appbingo.infrastructure.driver_adapter.auth.EmailService;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.history.PaymentHistoryRepositoryAdapter;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.transaction.mapper.TransactionMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
+import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersRepositoryAdapter;
+import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletRepositoryAdapter;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;

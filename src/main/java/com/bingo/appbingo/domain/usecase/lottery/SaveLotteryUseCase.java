@@ -10,9 +10,9 @@ import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class SaveLotteryUseCase implements Function<LotteryDto,Mono<Response>> {
-    private final LotteryRepository lotteryRepository;
+    private final LotteryRepository lotteryRepositoryAdapter;
     @Override
     public Mono<Response> apply(LotteryDto lotteryDto) {
-        return lotteryRepository.saveLottery(lotteryDto);
+        return lotteryRepositoryAdapter.saveLottery(lotteryDto);
     }
 }

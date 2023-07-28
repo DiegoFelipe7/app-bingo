@@ -2,6 +2,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.userwallet;
 
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
+import com.bingo.appbingo.domain.model.users.gateway.UsersRepository;
 import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -33,7 +34,6 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
         this.usersReactiveRepository = usersReactiveRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
-
 
     public Mono<Response> saveWallet(String token, String wallet) {
         String username = jwtProvider.extractToken(token);
@@ -79,7 +79,7 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     }
 
     @Override
-    public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity) {
+    public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity , TypeHistory typeHistory) {
         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
@@ -94,4 +94,12 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                     return Mono.when(saveWallet,savePaymentHistory);
                 }).then();
     }
+
+    @Override
+    public Mono<UserWallet> getWalletUserId(Integer id) {
+        return repository.findByUserId(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"No existe un usuario con esta wallet",TypeStateResponse.Error)))
+                .map(UserWalletMapper::userWalletEntityAUserWallet);
+    }
+
 }

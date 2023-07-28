@@ -9,9 +9,9 @@ import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class GetLotteryStarAdminUseCase implements Supplier<Mono<LotteryDto>> {
-    private final LotteryRepository lotteryRepository;
+    private final LotteryRepository lotteryRepositoryAdapter;
     @Override
     public Mono<LotteryDto> get() {
-        return lotteryRepository.getLotteryStartAdmin();
+        return lotteryRepositoryAdapter.getLotteryStartAdmin();
     }
 }

@@ -4,6 +4,7 @@ import com.bingo.appbingo.domain.model.enums.StateSupport;
 import com.bingo.appbingo.domain.model.support.Support;
 import com.bingo.appbingo.domain.model.support.SupportDto;
 import com.bingo.appbingo.domain.model.support.gateway.SupportRepository;
+import com.bingo.appbingo.domain.model.users.gateway.UsersRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
@@ -13,6 +14,7 @@ import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.security.jwt.JwtProvider;
 import com.bingo.appbingo.infrastructure.driver_adapter.support.mapper.SupportMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepository;
+import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersRepositoryAdapter;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -33,7 +35,7 @@ public class SupportRepositoryAdapter extends ReactiveAdapterOperations<Support 
 
     @Override
     public Flux<SupportDto> getAllSupport() {
-         return repository.findAll()
+        return repository.findAll()
                 .flatMap(ele -> userRepository.findById(ele.getUserId())
                         .map(data -> new SupportDto(ele.getId(),
                                 ele.getTicket(),

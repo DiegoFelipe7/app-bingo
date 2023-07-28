@@ -23,12 +23,12 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Repository
-public class PasswordResetAdapter extends ReactiveAdapterOperations<PasswordReset, PasswordResetEntity, Integer, PasswordReactiveResetRepository> implements PasswordResetRepository {
+public class PasswordResetAdapterRepository extends ReactiveAdapterOperations<PasswordReset, PasswordResetEntity, Integer, PasswordReactiveResetRepository> implements PasswordResetRepository {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final AuthReactiveRepository authReactiveRepository;
 
-    public PasswordResetAdapter(PasswordReactiveResetRepository repository, AuthReactiveRepository authReactiveRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
+    public PasswordResetAdapterRepository(PasswordReactiveResetRepository repository, AuthReactiveRepository authReactiveRepository, EmailService emailService, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
         super(repository, mapper, d -> mapper.mapBuilder(d, PasswordReset.PasswordResetBuilder.class).build());
         this.authReactiveRepository = authReactiveRepository;
         this.emailService = emailService;

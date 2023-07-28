@@ -11,9 +11,9 @@ import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
 public class GetAllFilterHistoryUseCase implements BiFunction<TypeHistory,String , Flux<PaymentHistory>> {
-   private final PaymentHistoryRepository paymentHistoryRepository;
+   private final PaymentHistoryRepository paymentHistoryRepositoryAdapter;
     @Override
     public Flux<PaymentHistory> apply(TypeHistory type, String token) {
-        return paymentHistoryRepository.filterPaymentHistory(type,token);
+        return paymentHistoryRepositoryAdapter.filterPaymentHistory(type,token);
     }
 }

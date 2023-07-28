@@ -9,9 +9,9 @@ import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 public class GetAllLotteryUseCase implements Supplier<Flux<Lottery>> {
-    private final LotteryRepository lotteryRepository;
+    private final LotteryRepository lotteryRepositoryAdapter;
     @Override
     public Flux<Lottery> get() {
-        return lotteryRepository.getLottery();
+        return lotteryRepositoryAdapter.getLottery();
     }
 }

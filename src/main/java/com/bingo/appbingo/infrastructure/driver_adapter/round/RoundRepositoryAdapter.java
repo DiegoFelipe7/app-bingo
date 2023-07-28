@@ -2,16 +2,18 @@ package com.bingo.appbingo.infrastructure.driver_adapter.round;
 
 import com.bingo.appbingo.domain.model.balls.gateway.BallRepository;
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
-import com.bingo.appbingo.domain.model.lottery.LotteryDto;
 import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
 import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
+import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
+import com.bingo.appbingo.infrastructure.driver_adapter.balls.BallRepositoryAdapter;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
 import com.bingo.appbingo.infrastructure.driver_adapter.lottery.LotteryReactiveRepository;
+import com.bingo.appbingo.infrastructure.driver_adapter.lottery.LotteryRepositoryAdapter;
 import com.bingo.appbingo.infrastructure.driver_adapter.round.mapper.RoundMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.UserWalletRepositoryAdapter;
 import org.reactivecommons.utils.ObjectMapper;
@@ -26,12 +28,12 @@ import java.util.Comparator;
 import java.util.List;
 
 @Repository
-public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, RoundEntity, Integer, RoundReactiveRepository> implements RoundRepository {
+public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, RoundEntity, Integer, RoundReactiveRepository> implements RoundRepository {
     private final BallRepository ballRepository;
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final LotteryReactiveRepository lotteryRepository;
 
-    public RoundAdapterRepository(RoundReactiveRepository repository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, LotteryReactiveRepository lotteryRepository, BallRepository ballRepository, ObjectMapper mapper) {
+    public RoundRepositoryAdapter(RoundReactiveRepository repository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, LotteryReactiveRepository lotteryRepository, BallRepository ballRepository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, Round.RoundBuilder.class).build());
         this.ballRepository = ballRepository;
         this.lotteryRepository = lotteryRepository;
@@ -132,6 +134,5 @@ public class RoundAdapterRepository extends ReactiveAdapterOperations<Round, Rou
                                     .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
                 });
     }
-
 
 }

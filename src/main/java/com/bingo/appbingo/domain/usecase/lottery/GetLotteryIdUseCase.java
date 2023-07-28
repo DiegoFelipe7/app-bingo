@@ -8,9 +8,9 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 @RequiredArgsConstructor
 public class GetLotteryIdUseCase implements Function<Integer , Mono<LotteryDto>> {
-    private final LotteryRepository lotteryRepository;
+    private final LotteryRepository lotteryRepositoryAdapter;
     @Override
     public Mono<LotteryDto> apply(Integer id) {
-        return lotteryRepository.getLotteryId(id);
+        return lotteryRepositoryAdapter.getLotteryId(id);
     }
 }

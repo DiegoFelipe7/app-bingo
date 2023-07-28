@@ -9,9 +9,9 @@ import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class GetUserWalletUseCase implements Function<String , Mono<UserWallet>> {
-    private final UserWalletRepository userWalletRepository;
+    private final UserWalletRepository userWalletRepositoryAdapter;
     @Override
     public Mono<UserWallet> apply(String token) {
-        return userWalletRepository.getWalletUser(token);
+        return userWalletRepositoryAdapter.getWalletUser(token);
     }
 }

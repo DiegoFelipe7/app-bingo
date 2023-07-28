@@ -5,7 +5,8 @@ import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.history.gateway.PaymentHistoryRepository;
 import com.bingo.appbingo.domain.model.users.PanelUsers;
 import com.bingo.appbingo.domain.model.users.References;
-import com.bingo.appbingo.domain.model.users.gateway.UserRepository;
+import com.bingo.appbingo.domain.model.users.gateway.UsersRepository;
+import com.bingo.appbingo.domain.model.userwallet.UserWallet;
 import com.bingo.appbingo.domain.model.userwallet.gateway.UserWalletRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
@@ -31,7 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, UsersReactiveRepository> implements UserRepository {
+public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, UsersEntity, Integer, UsersReactiveRepository> implements UsersRepository {
     private final JwtProvider jwtProvider;
     private final UserWalletRepository userWalletRepository;
     private final UserWalletReactiveRepository userWalletReactiveRepository;
@@ -45,7 +46,6 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
         this.userWalletReactiveRepository = userWalletReactiveRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
-
 
     @Override
     public Flux<References> getAllReferences(String token) {
@@ -97,10 +97,19 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
 
 
     @Override
-    public Mono<Users> getUserId(String token) {
+    public Mono<Users> getUserIdToken(String token) {
         String username = jwtProvider.extractToken(token);
         return repository.findByUsername(username)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"usuario no encontrado", TypeStateResponse.Error)))
                 .map(UserMapper::usersEntityAUsers);
+    }
+
+    @Override
+    public Mono<Users> getUserId(Integer id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"usuario no encontrado", TypeStateResponse.Error)))
+                .map(UserMapper::usersEntityAUsers);
+
     }
 
     @Override
@@ -137,7 +146,6 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
                             return userWalletRepository.increaseBalance(ele.getId(), payment, TypeHistory.Commission);
                         })).then();
     }
-
 
 
 }

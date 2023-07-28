@@ -16,11 +16,10 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 
 @Repository
-public class PaymentHistoryAdapterRepository extends ReactiveAdapterOperations<PaymentHistory, PaymentHistoryEntity, Integer, PaymentHistoryReactiveRepository> implements PaymentHistoryRepository {
+public class PaymentHistoryRepositoryAdapter extends ReactiveAdapterOperations<PaymentHistory, PaymentHistoryEntity, Integer, PaymentHistoryReactiveRepository> implements PaymentHistoryRepository {
     private final UsersReactiveRepository usersReactiveRepository;
     private final JwtProvider jwtProvider;
-
-    public PaymentHistoryAdapterRepository(PaymentHistoryReactiveRepository repository, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, ObjectMapper mapper) {
+    public PaymentHistoryRepositoryAdapter(PaymentHistoryReactiveRepository repository, UsersReactiveRepository usersReactiveRepository, JwtProvider jwtProvider, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, PaymentHistory.PaymentHistoryBuilder.class).build());
         this.usersReactiveRepository = usersReactiveRepository;
         this.jwtProvider = jwtProvider;

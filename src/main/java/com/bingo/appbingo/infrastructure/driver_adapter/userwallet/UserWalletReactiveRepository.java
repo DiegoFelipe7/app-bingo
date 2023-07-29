@@ -11,4 +11,6 @@ public interface UserWalletReactiveRepository extends ReactiveCrudRepository<Use
     Mono<UserWalletEntity> findByWalletEqualsIgnoreCase(String wallet);
     Mono<Boolean> existsByWallet(String wallet);
     Mono<UserWalletEntity> findByUserId(Integer id);
+
+
 }

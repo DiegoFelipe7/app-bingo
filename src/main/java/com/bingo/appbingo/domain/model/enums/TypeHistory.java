@@ -4,5 +4,6 @@ public enum TypeHistory {
     Transaction,
     Commission,
     Earnings,
-    Shopping
+    Shopping,
+    Retreats
 }

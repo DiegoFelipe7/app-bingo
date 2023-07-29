@@ -85,4 +85,21 @@ public class EmailService {
             }
         }).subscribeOn(scheduler).then();
     }
+
+    public Mono<Void>sendNotification(String fullName, String email) {
+        MimeMessage message = mailSender.createMimeMessage();
+        String invalid = MessageHtml.retreats(fullName);
+        return Mono.fromRunnable(() -> {
+            try {
+                message.setSubject("");
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                helper.setFrom(emailSender);
+                helper.setTo(email);
+                helper.setText(invalid, true);
+                mailSender.send(message);
+            } catch (Exception e) {
+                Mono.error(new CustomException(HttpStatus.BAD_REQUEST, e.getMessage(), TypeStateResponse.Error));
+            }
+        }).subscribeOn(scheduler).then();
+    }
 }

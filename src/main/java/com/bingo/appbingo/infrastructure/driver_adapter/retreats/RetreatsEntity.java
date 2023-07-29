@@ -17,6 +17,7 @@ public class RetreatsEntity {
     @Id
     private Integer id;
     private Integer userWalletId;
+    private Integer userId;
     private BigDecimal price;
     private BigDecimal commissionPercentage;
     private String currency;

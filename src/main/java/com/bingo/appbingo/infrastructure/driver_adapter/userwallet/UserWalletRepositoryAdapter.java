@@ -15,6 +15,7 @@ import com.bingo.appbingo.infrastructure.driver_adapter.users.UsersReactiveRepos
 import com.bingo.appbingo.infrastructure.driver_adapter.userwallet.mapper.UserWalletMapper;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
@@ -99,6 +100,13 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     public Mono<UserWallet> getWalletUserId(Integer id) {
         return repository.findByUserId(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"No existe un usuario con esta wallet",TypeStateResponse.Error)))
+                .map(UserWalletMapper::userWalletEntityAUserWallet);
+    }
+
+    @Override
+    public Mono<UserWallet> getWalletKey(String wallet) {
+        return repository.findByWalletEqualsIgnoreCase(wallet)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST , "La wallet no existe" , TypeStateResponse.Error)))
                 .map(UserWalletMapper::userWalletEntityAUserWallet);
     }
 

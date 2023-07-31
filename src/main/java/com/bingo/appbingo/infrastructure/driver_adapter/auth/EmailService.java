@@ -91,7 +91,7 @@ public class EmailService {
         String invalid = MessageHtml.retreats(fullName);
         return Mono.fromRunnable(() -> {
             try {
-                message.setSubject("");
+                message.setSubject("Transacción exitosa");
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
                 helper.setFrom(emailSender);
                 helper.setTo(email);

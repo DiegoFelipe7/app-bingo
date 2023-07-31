@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.retreats;
 
+import com.bingo.appbingo.domain.model.enums.StateTransaction;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -16,11 +17,12 @@ import java.time.LocalDateTime;
 public class RetreatsEntity {
     @Id
     private Integer id;
+    private Integer wallet;
     private Integer userWalletId;
-    private Integer userId;
     private BigDecimal price;
     private BigDecimal commissionPercentage;
     private String currency;
+    private StateTransaction stateRetreats;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, RoundEntity, Integer, RoundReactiveRepository> implements RoundRepository {
@@ -62,19 +63,21 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
     }
 
     @Override
-    public Mono<Round> getLotteryRound(Integer lottery) {
-        return lotteryRepository.findById(lottery)
+    public Mono<Round> getLotteryRound(String key) {
+        return lotteryRepository.findByKey(key)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Id de la loterria invalido", TypeStateResponse.Error)))
                 .filter(ele -> ele.getState().equals(Boolean.TRUE))
-                .flatMap(ele -> getAllRounds(ele.getId()).next().log());
+                .flatMap(ele -> getAllRounds(ele.getKey()).next());
     }
-
     @Override
-    public Flux<Round> getAllRounds(Integer id) {
-        return repository.findAll()
-                .filter(ele -> ele.getIdLottery().equals(id) && ele.getCompleted().equals(Boolean.FALSE) && ele.getUserWinner() == null)
-                .map(RoundMapper::roundEntityARound)
-                .sort(Comparator.comparing(Round::getNumberRound));
+    public Flux<Round> getAllRounds(String key) {
+        return lotteryRepository.findByKey(key)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Id de la loterria invalido", TypeStateResponse.Error)))
+                .flatMapMany(lottery -> repository.findAll()
+                        .filter(data -> data.getIdLottery().equals(lottery.getId()) && !data.getCompleted() && data.getUserWinner() == null)
+                        .map(RoundMapper::roundEntityARound)
+                        .sort(Comparator.comparing(Round::getNumberRound)));
+
     }
 
     @Override
@@ -98,18 +101,23 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
     }
 
     @Override
-    public Mono<Void> saveBall(Integer lottery, Integer id) {
+
+    public Mono<Void> saveBall(String lottery, Integer id) {
         return ballRepository.getAllBall()
-                .flatMap(ball -> repository.findByIdLotteryAndNumberRound(lottery, id)
+                .flatMap(ball -> lotteryRepository.findByKey(lottery)
                         .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
-                        .flatMap(ele -> {
-                            List<String> list = new ArrayList<>(ele.getBalls());
-                            list.add(ball.getBall());
-                            ele.setBalls(list);
-                            return repository.save(ele);
-                        }))
+                        .flatMap(lotteryEntity -> repository.findByIdLotteryAndNumberRound(lotteryEntity.getId(), id)
+                                .flatMap(roundEntity -> {
+                                    List<String> updatedBalls = new ArrayList<>(roundEntity.getBalls());
+                                    updatedBalls.add(ball.getBall());
+                                    roundEntity.setBalls(updatedBalls);
+                                    return repository.save(roundEntity);
+                                })
+                        )
+                )
                 .then();
     }
+
 
     @Override
     public Mono<Boolean> validBalls(Integer id, String ball) {

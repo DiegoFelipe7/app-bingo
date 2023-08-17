@@ -13,7 +13,7 @@ public interface LotteryRepository {
     Flux<Lottery> getLottery();
     Mono<Lottery> getLotteryState();
 
-    Mono<LotteryDto> getLotteryId(Integer id);
+    Mono<LotteryDto> getLotteryId(String id);
 
     Mono<LotteryDto> getLotteryStartAdmin();
 

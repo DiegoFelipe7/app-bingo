@@ -6,10 +6,10 @@ import reactor.core.publisher.Mono;
 import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
-public class StartRoundUseCase implements BiFunction<Integer , Integer , Mono<Void>> {
+public class StartRoundUseCase implements BiFunction<String , Integer , Mono<Void>> {
     private final RoundRepository roundRepository;
     @Override
-    public Mono<Void> apply(Integer id, Integer lottery) {
-        return roundRepository.saveBall(id,lottery);
+    public Mono<Void> apply(String lottery,Integer id ) {
+        return roundRepository.saveBall(lottery,id);
     }
 }

@@ -35,7 +35,7 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> saveCard(ServerRequest serverRequest) {
-        Integer lotteryId = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
+        String lotteryId = serverRequest.pathVariable("lotteryId");
         String token = serverRequest.headers().firstHeader("Authorization");
         return serverRequest.bodyToMono(new ParameterizedTypeReference<List<CardBingo>>() {
                 })
@@ -53,7 +53,7 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> getAllCardBingoUser(ServerRequest serverRequest) {
-        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        String id = serverRequest.pathVariable("id");
         String token = serverRequest.headers().firstHeader("Authorization");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +61,7 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> getCardBingoRound(ServerRequest serverRequest) {
-        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
+        String lottery = serverRequest.pathVariable("lottery");
         Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
         String token = serverRequest.headers().firstHeader("Authorization");
         Mono<CardBingo> cardBingoMono = getCardBingoRoundUseCase.apply(lottery, roundId, token);
@@ -74,7 +74,7 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> markBallot(ServerRequest serverRequest) {
-        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
+        String lottery = serverRequest.pathVariable("lotteryId");
         Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
         String ball = serverRequest.pathVariable("ball");
         String token = serverRequest.headers().firstHeader("Authorization");
@@ -84,7 +84,7 @@ public class CardBingoHandler {
     }
 
     public Mono<ServerResponse> winnerBingo(ServerRequest serverRequest) {
-        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lotteryId"));
+        String lottery = serverRequest.pathVariable("lotteryId");
         Integer roundId = Integer.valueOf(serverRequest.pathVariable("roundId"));
         String token = serverRequest.headers().firstHeader("Authorization");
         return ServerResponse.ok()

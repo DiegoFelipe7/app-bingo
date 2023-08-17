@@ -6,7 +6,9 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Repository
 public interface LotteryReactiveRepository extends ReactiveCrudRepository<LotteryEntity , Integer>, ReactiveQueryByExampleExecutor<LotteryEntity> {
-    Mono<CardBingo> findByKey(String id);
+    Mono<LotteryEntity> findByKey(String id);
 }

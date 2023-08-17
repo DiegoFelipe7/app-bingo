@@ -36,7 +36,7 @@ public class LotteryHandler {
     }
 
     public Mono<ServerResponse> getLotteryRound(ServerRequest serverRequest) {
-        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
+        String lottery = serverRequest.pathVariable("lottery");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getLotteryRoundUseCase.apply(lottery), Round.class);
@@ -60,14 +60,14 @@ public class LotteryHandler {
                 .body(getAllLotteryUseCase.get(), Lottery.class);
     }
     public Mono<ServerResponse> getLotteryId(ServerRequest serverRequest) {
-        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        String id = serverRequest.pathVariable("id");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(getLotteryIdUseCase.apply(id), LotteryDto.class);
     }
     //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> startRound(ServerRequest serverRequest){
-        Integer lottery = Integer.valueOf(serverRequest.pathVariable("lottery"));
+        String lottery = serverRequest.pathVariable("lottery");
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

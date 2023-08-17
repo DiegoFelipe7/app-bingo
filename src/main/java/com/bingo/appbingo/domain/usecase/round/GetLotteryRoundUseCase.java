@@ -7,10 +7,10 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class GetLotteryRoundUseCase implements Function<Integer,Mono<Round>> {
+public class GetLotteryRoundUseCase implements Function<String,Mono<Round>> {
     private final RoundRepository roundRepository;
     @Override
-    public Mono<Round> apply(Integer id) {
+    public Mono<Round> apply(String id) {
         return roundRepository.getLotteryRound(id);
 
     }

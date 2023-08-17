@@ -73,7 +73,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     }
 
     @Override
-    public Mono<CardBingo> getCardBingoRound(Integer lotteryId, Integer round, String token) {
+    public Mono<CardBingo> getCardBingoRound(String lotteryId, Integer round, String token) {
         return roundRepository.getRoundId(round)
                 .flatMap(ele -> getCardBingo(lotteryId, token)
                         .filter(data -> data.getRound().equals(ele.getNumberRound()))
@@ -82,7 +82,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
 
     @Override
-    public Flux<CardBingo> getCardBingo(Integer lotteryId, String token) {
+    public Flux<CardBingo> getCardBingo(String lotteryId, String token) {
         return userRepository.getUserIdToken(token)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el token", TypeStateResponse.Error)))
                 .flatMapMany(ele -> repository.findAll()
@@ -94,7 +94,10 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
     }
 
-    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, Integer lotteryId) {
+
+
+    @Override
+    public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, String lotteryId) {
        return userRepository.getUserIdToken(token)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el token", TypeStateResponse.Error)))
                 .flatMap(user -> {
@@ -120,7 +123,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
 
     @Override
-    public Mono<BingoBalls> markBallot(Integer lotteryId, Integer round, String ball, String token) {
+    public Mono<BingoBalls> markBallot(String lotteryId, Integer round, String ball, String token) {
         return roundRepository.getRoundId(round)
                 .flatMap(ele -> roundRepository.validBalls(ele.getId(), ball)
                         .flatMap(data -> {
@@ -134,7 +137,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
 
 
-    public Mono<BingoBalls> processTypeLAndX(Integer lotteryId, Integer round, String ball, String token , TypeLottery typeLottery) {
+    public Mono<BingoBalls> processTypeLAndX(String lotteryId, Integer round, String ball, String token , TypeLottery typeLottery) {
         return getCardBingoRound(lotteryId, round, token)
                 .flatMap(card -> {
                     List<Integer> indexes = Utils.processTypeGame(typeLottery);
@@ -156,7 +159,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
 
     @Override
-    public Mono<Response> winnerBingo(Integer lotteryId, Integer round, String token) {
+    public Mono<Response> winnerBingo(String lotteryId, Integer round, String token) {
         return roundRepository.getRoundId(round)
                 .flatMap(ele -> getCardBingoRound(lotteryId, round, token)
                         .flatMap(card -> {

@@ -15,7 +15,7 @@ public class CardBingo {
     private String id;
     private String key;
     private Integer userId;
-    private Integer lotteryId;
+    private String lotteryId;
     private List<BingoBalls> card;
     private Integer round;
     private Boolean state;

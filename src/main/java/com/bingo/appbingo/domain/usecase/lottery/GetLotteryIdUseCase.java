@@ -7,10 +7,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
 @RequiredArgsConstructor
-public class GetLotteryIdUseCase implements Function<Integer , Mono<LotteryDto>> {
+public class GetLotteryIdUseCase implements Function<String , Mono<LotteryDto>> {
     private final LotteryRepository lotteryRepositoryAdapter;
     @Override
-    public Mono<LotteryDto> apply(Integer id) {
+    public Mono<LotteryDto> apply(String id) {
         return lotteryRepositoryAdapter.getLotteryId(id);
     }
 }

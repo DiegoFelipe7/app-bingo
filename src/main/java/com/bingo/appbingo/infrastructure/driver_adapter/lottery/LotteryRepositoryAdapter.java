@@ -9,6 +9,7 @@ import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.CustomException;
 import com.bingo.appbingo.infrastructure.driver_adapter.exception.TypeStateResponse;
 import com.bingo.appbingo.infrastructure.driver_adapter.helper.ReactiveAdapterOperations;
+import com.bingo.appbingo.infrastructure.driver_adapter.helper.Utils;
 import com.bingo.appbingo.infrastructure.driver_adapter.lottery.mapper.LotteryMapper;
 import com.bingo.appbingo.infrastructure.driver_adapter.round.RoundRepositoryAdapter;
 import org.reactivecommons.utils.ObjectMapper;
@@ -29,6 +30,7 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
 
     @Override
     public Mono<Response> saveLottery(LotteryDto lotteryDto) {
+        lotteryDto.setKey(Utils.uid());
       return repository.save(LotteryMapper.lotteryDtoALotteryEntity(lotteryDto))
                 .flatMap(ele -> roundRepository.saveRounds(lotteryDto.getRounds(), ele.getId()))
                 .thenReturn(new Response(TypeStateResponses.Success, "Sorteo creado exitosamente!"));
@@ -58,17 +60,17 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
     }
 
     @Override
-    public Mono<LotteryDto> getLotteryId(Integer id) {
-        return repository.findById(id)
+    public Mono<LotteryDto> getLotteryId(String id) {
+        return repository.findByKey(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El Juego no esta registado", TypeStateResponse.Error)))
-                .flatMap(ele -> roundRepository.getAllRounds(ele.getId()).collectList()
+                .flatMap(ele -> roundRepository.getAllRounds(ele.getKey()).collectList()
                         .map(res -> LotteryMapper.lotteryDto(ele, res)));
     }
 
     @Override
     public Mono<LotteryDto> getLotteryStartAdmin() {
         return getLotteryState()
-                .flatMap(ele->getLotteryId(ele.getId()));
+                .flatMap(ele->getLotteryId(ele.getKey()));
     }
 
 }

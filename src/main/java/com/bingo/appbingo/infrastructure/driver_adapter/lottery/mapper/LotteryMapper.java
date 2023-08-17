@@ -16,7 +16,7 @@ public class LotteryMapper {
     public static Lottery lotteryEntityALottery(LotteryEntity lotteryEntity){
         return Lottery.builder()
                 .id(lotteryEntity.getId())
-                .key(Utils.uid())
+                .key(lotteryEntity.getKey())
                 .createdAt(lotteryEntity.getCreatedAt())
                 .startDate(lotteryEntity.getStartDate())
                 .numberOfRounds(lotteryEntity.getNumberOfRounds())
@@ -37,7 +37,7 @@ public class LotteryMapper {
     public static LotteryEntity lotteryDtoALotteryEntity(LotteryDto lottery){
         return LotteryEntity.builder()
                 .id(lottery.getId())
-                .key(Utils.uid())
+                .key(lottery.getKey())
                 .createdAt(lottery.getCreatedAt())
                 .startDate(Utils.starDate(lottery.getStartDate()))
                 .numberOfRounds(lottery.getNumberOfRounds())

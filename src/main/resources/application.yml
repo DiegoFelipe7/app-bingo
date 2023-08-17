@@ -5,16 +5,16 @@ spring:
     suffix: .html
     check-template-location: false
   r2dbc:
-    url: r2dbc:postgresql://167.86.126.237/betbillions
+    url: r2dbc:postgresql://localhost/app-bingo
     username: postgres
-    password: Lider123**
+    password: postgres
   application:
     name: betbillions
   data:
     mongodb:
       uri: "mongodb+srv://dbuser:DMekHRirbSkdNyfj@cluster0.s4e6i.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 jwt:
-  secret: secretsecretsecretsecretsecretsecretsecretsecretsecret
+  secret: 76397924423F4528482B4D6251655468576D5A7134743777217A25432A46294A
   expiration: 3600
 bet_billions:
   url: https://betbillions.com.co/

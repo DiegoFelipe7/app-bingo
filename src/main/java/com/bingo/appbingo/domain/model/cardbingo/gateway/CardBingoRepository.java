@@ -15,11 +15,11 @@ public interface CardBingoRepository {
     Flux<CardBingo> generateCardBingo();
     Mono<List<BingoBalls>> cardBingo();
     Mono<Boolean> validatePurchaseLottery(Integer id , String token);
-    Mono<CardBingo> getCardBingoRound(Integer id , Integer round , String token);
-    Flux<CardBingo> getCardBingo(Integer id , String token);
-    Mono<Response> saveCardBingo(List<CardBingo> cardBingo , String token , Integer lotteryId);
+    Mono<CardBingo> getCardBingoRound(String lottery , Integer round , String token);
+    Flux<CardBingo> getCardBingo(String lottery , String token);
+    Mono<Response> saveCardBingo(List<CardBingo> cardBingo , String token , String lotteryId);
 
-    Mono<BingoBalls>  markBallot(Integer lotteryId , Integer round , String ball , String token);
+    Mono<BingoBalls>  markBallot(String lotteryId , Integer round , String ball , String token);
 
-    Mono<Response> winnerBingo(Integer lotteryId , Integer round , String token);
+    Mono<Response> winnerBingo(String lotteryId , Integer round , String token);
 }

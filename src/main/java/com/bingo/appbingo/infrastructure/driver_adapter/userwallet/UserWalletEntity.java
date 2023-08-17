@@ -18,6 +18,7 @@ public class UserWalletEntity {
     private Integer id;
     private String red;
     private BigDecimal balance;
+    private BigDecimal bingoWinnings;
     private Integer userId;
     private String wallet;
     private Boolean state;
@@ -25,9 +26,10 @@ public class UserWalletEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public UserWalletEntity(String red,BigDecimal balance) {
+    public UserWalletEntity(String red,BigDecimal balance , BigDecimal bingoWinnings) {
         this.red=red;
         this.balance = balance;
+        this.bingoWinnings=bingoWinnings;
     }
 
 }

@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class WinnerBingoUseCase {
     private final CardBingoRepository cardBingoRepository;
-    public Mono<Response> apply(Integer lotteryId , Integer round , String token){
+    public Mono<Response> apply(String lotteryId , Integer round , String token){
         return  cardBingoRepository.winnerBingo(lotteryId,round,token);
     }
 }

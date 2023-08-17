@@ -13,6 +13,7 @@ public class UserWallet {
     private Integer id;
     private String red;
     private BigDecimal balance;
+    private BigDecimal bingoWinnings;
     private Integer userId;
     private String wallet;
     private Boolean state;

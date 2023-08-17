@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 @RequiredArgsConstructor
 public class SaveCardBingoUseCase  {
     private final CardBingoRepository cardBingoRepository;
-    public Mono<Response> apply(String token, List<CardBingo> cardBingo , Integer lotteryId) {
+    public Mono<Response> apply(String token, List<CardBingo> cardBingo , String lotteryId) {
         return cardBingoRepository.saveCardBingo(cardBingo,token,lotteryId);
     }
 

@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MarkBallotUseCase {
     private final CardBingoRepository cardBingoRepository;
-    public  Mono<BingoBalls>  apply(Integer lotteryId, Integer round, String ball , String token){
+    public  Mono<BingoBalls>  apply(String lotteryId, Integer round, String ball , String token){
         return cardBingoRepository.markBallot(lotteryId,round,ball , token);
     }
 

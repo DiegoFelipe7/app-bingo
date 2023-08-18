@@ -5,9 +5,9 @@ spring:
     suffix: .html
     check-template-location: false
   r2dbc:
-    url: r2dbc:postgresql://localhost/app-bingo
-    username: postgres
-    password: postgres
+    url: r2dbc:postgresql://${DB}
+    username: ${USERNAME}
+    password: ${PASSWORD}
   application:
     name: betbillions
   data:

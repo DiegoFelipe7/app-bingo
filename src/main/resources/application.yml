@@ -5,14 +5,9 @@ spring:
     suffix: .html
     check-template-location: false
   r2dbc:
-    #url: r2dbc:postgresql://localhost/app-bingo
- # username: postgres
-  #password: postgres
-
-    url: r2dbc:postgresql://ec2-54-208-11-146.compute-1.amazonaws.com/d2ggqgof9kor64
-    username: igisqmwurbycdk
-    password: 392ea4e44118671c66917b6174814fef046c7b17e1877527d3df7e71cd3f0f8a
-
+    url: r2dbc:postgresql://173.249.47.119/betbillions
+    username: postgres
+    password: Lider123
   application:
     name: betbillions
   data:

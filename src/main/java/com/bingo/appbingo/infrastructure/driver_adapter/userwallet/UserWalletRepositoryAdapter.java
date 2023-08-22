@@ -79,6 +79,19 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                 }).then();
     }
 
+
+    public Mono<Void> increaseBalanceWinner(Integer userId, BigDecimal quantity , TypeHistory typeHistory) {
+        return repository.findByUserId(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
+                .flatMap(ele -> {
+                    ele.setBingoWinnings(ele.getBalance().add(quantity));
+                    ele.setUpdatedAt(LocalDateTime.now());
+                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , typeHistory);
+                    Mono<UserWalletEntity> saveWallet = repository.save(ele);
+                    return Mono.when(saveWallet,savePaymentHistory);
+                }).then();
+    }
+
     @Override
     public Mono<Void> decreaseBalance(Integer userId, BigDecimal quantity , TypeHistory typeHistory) {
         return repository.findByUserId(userId)

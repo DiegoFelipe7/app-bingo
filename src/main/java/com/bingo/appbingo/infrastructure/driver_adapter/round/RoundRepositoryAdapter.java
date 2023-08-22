@@ -138,7 +138,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                     round.setCompleted(true);
                     round.setUserWinner(userId);
                     return repository.save(round)
-                            .flatMap(savedRound -> userWalletRepositoryAdapter.increaseBalance(userId, savedRound.getAward(), TypeHistory.Earnings)
+                            .flatMap(savedRound -> userWalletRepositoryAdapter.increaseBalanceWinner(userId, savedRound.getAward(), TypeHistory.Earnings)
                                     .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
                 });
     }

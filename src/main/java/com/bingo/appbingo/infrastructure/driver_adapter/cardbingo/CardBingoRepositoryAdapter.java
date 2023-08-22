@@ -161,7 +161,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     @Override
     public Mono<Response> winnerBingo(String lotteryId, Integer round, String token) {
         return roundRepository.getRoundId(round)
-                .flatMap(ele -> getCardBingoRound(lotteryId, round, token)
+                .flatMap(ele -> getCardBingoRound(lotteryId, ele.getNumberRound(), token)
                         .flatMap(card -> {
                             List<Integer> indexes = Utils.processTypeGame(ele.getTypeGame());
                             if (indexes.stream().allMatch(index -> card.getCard().get(index).getState().equals(Boolean.TRUE))) {

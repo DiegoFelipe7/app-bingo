@@ -74,6 +74,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
     @Override
     public Mono<CardBingo> getCardBingoRound(String lotteryId, Integer round, String token) {
+        System.out.println("llamado "+  round);
         return roundRepository.getRoundId(round)
                 .flatMap(ele -> getCardBingo(lotteryId, token)
                         .filter(data -> data.getRound().equals(ele.getNumberRound()))
@@ -124,13 +125,13 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
     @Override
     public Mono<BingoBalls> markBallot(String lotteryId, Integer round, String ball, String token) {
-        return roundRepository.getRoundId(round)
+       return roundRepository.getRoundId(round)
                 .flatMap(ele -> roundRepository.validBalls(ele.getId(), ball)
                         .flatMap(data -> {
                             if (Boolean.FALSE.equals(data)) {
                                 return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
                             }
-                            return processTypeLAndX(lotteryId, ele.getNumberRound(), ball, token , ele.getTypeGame());
+                            return processTypeLAndX(lotteryId, ele.getId(), ball, token , ele.getTypeGame());
                         }));
     }
 

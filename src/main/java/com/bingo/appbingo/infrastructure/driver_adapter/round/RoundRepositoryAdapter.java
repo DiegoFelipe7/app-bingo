@@ -58,7 +58,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
     @Override
     public Mono<Round> getRoundId(Integer id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrio un erro", TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El id de la ronda es invalida", TypeStateResponse.Error)))
                 .map(RoundMapper::roundEntityARound);
     }
 

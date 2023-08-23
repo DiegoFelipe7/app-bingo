@@ -45,7 +45,10 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
 
     @Override
     public Mono<Response> moneyRequest(Retreats retreats, String token) {
-        // userRepository.getUserIdToken(token).
+       // var data= usersRepository.getUserIdToken(token)
+              //  .map(ele->{
+
+        //});
         return null;
     }
 
@@ -53,8 +56,9 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
     public Mono<Response> approveMoney(Integer id, String wallet, BigDecimal money) {
         return userWalletRepositoryAdapter.getWalletKey(wallet)
                 .flatMap(walletKey -> {
+                    //var total= walletKey.getBalance().
                     Mono<Users> usersMono = usersRepository.getUserId(walletKey.getUserId());
-                    Mono<Void> decrement = userWalletRepositoryAdapter.decreaseBalance(walletKey.getUserId(), money, TypeHistory.Retreats);
+                    Mono<Void> decrement = userWalletRepositoryAdapter.decreaseBalanceBingoWinner(walletKey.getUserId(), money, TypeHistory.Retreats);
                     return Mono.zip(usersMono, decrement)
                             .flatMap(tuple -> {
                                 Users user = tuple.getT1();

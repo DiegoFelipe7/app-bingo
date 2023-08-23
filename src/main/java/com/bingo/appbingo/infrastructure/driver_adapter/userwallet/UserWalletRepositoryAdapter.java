@@ -99,7 +99,7 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                 .flatMap(ele -> {
                     BigDecimal newBalance = ele.getBalance().subtract(quantity);
                     if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                        return decreaseBalanceBingoWinner(userId,quantity);
+                        return decreaseBalanceBingoWinner(userId,quantity,typeHistory);
                     }
                     ele.setBalance(newBalance);
                     ele.setUpdatedAt(LocalDateTime.now());
@@ -108,7 +108,8 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                     return Mono.when(saveWallet,savePaymentHistory);
                 }).then();
     }
-    public Mono<Void> decreaseBalanceBingoWinner(Integer userId, BigDecimal quantity ) {
+    @Override
+    public Mono<Void> decreaseBalanceBingoWinner(Integer userId, BigDecimal quantity , TypeHistory typeHistory ) {
         return repository.findByUserId(userId)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
                 .flatMap(ele -> {
@@ -119,7 +120,7 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                     ele.setBingoWinnings(newBalance);
                     ele.setUpdatedAt(LocalDateTime.now());
                     Mono<UserWalletEntity> saveWallet = repository.save(ele);
-                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , TypeHistory.Shopping);
+                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , typeHistory);
                     return Mono.when(saveWallet,savePaymentHistory);
                 }).then();
     }

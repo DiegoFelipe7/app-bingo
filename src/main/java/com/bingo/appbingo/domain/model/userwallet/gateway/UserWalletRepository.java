@@ -16,6 +16,7 @@ public interface UserWalletRepository {
     Mono<Void> increaseBalance(Integer userId , BigDecimal quantity , TypeHistory typeHistory);
 
     Mono<Void> decreaseBalance(Integer userId , BigDecimal quantity, TypeHistory typeHistory);
+    Mono<Void> decreaseBalanceBingoWinner(Integer userId , BigDecimal quantity, TypeHistory typeHistory);
     Mono<UserWallet> getWalletUserId(Integer id);
 
     Mono<UserWallet> getWalletKey(String wallet);

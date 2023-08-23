@@ -68,8 +68,9 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
     }
 
     @Override
-    public Mono<LotteryDto> getLotteryStartAdmin() {
-        return getLotteryState()
+    public Flux<LotteryDto> getLotteryStartAdmin() {
+        return repository.findAll()
+                .filter(ele->ele.getState().equals(Boolean.TRUE))
                 .flatMap(ele->getLotteryId(ele.getKey()));
     }
 

@@ -42,7 +42,7 @@ public class LotteryHandler {
                 .body(getLotteryRoundUseCase.apply(lottery), Round.class);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> getLotteryStartAdmin(ServerRequest serverRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

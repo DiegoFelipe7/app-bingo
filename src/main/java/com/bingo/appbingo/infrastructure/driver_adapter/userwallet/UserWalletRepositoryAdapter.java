@@ -99,9 +99,24 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
                 .flatMap(ele -> {
                     BigDecimal newBalance = ele.getBalance().subtract(quantity);
                     if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El saldo es insuficciente", TypeStateResponse.Error));
+                        return decreaseBalanceBingoWinner(userId,quantity);
                     }
                     ele.setBalance(newBalance);
+                    ele.setUpdatedAt(LocalDateTime.now());
+                    Mono<UserWalletEntity> saveWallet = repository.save(ele);
+                    Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , TypeHistory.Shopping);
+                    return Mono.when(saveWallet,savePaymentHistory);
+                }).then();
+    }
+    public Mono<Void> decreaseBalanceBingoWinner(Integer userId, BigDecimal quantity ) {
+        return repository.findByUserId(userId)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Usuario invalido", TypeStateResponse.Error)))
+                .flatMap(ele -> {
+                    BigDecimal newBalance = ele.getBingoWinnings().subtract(quantity);
+                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El saldo es insuficciente", TypeStateResponse.Error));
+                    }
+                    ele.setBingoWinnings(newBalance);
                     ele.setUpdatedAt(LocalDateTime.now());
                     Mono<UserWalletEntity> saveWallet = repository.save(ele);
                     Mono<Void> savePaymentHistory = paymentHistoryRepository.saveHistory(userId, quantity , TypeHistory.Shopping);

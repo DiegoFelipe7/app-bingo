@@ -118,10 +118,8 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
         Mono<UsersEntity> usersEntity = repository.findByUsername(username);
         Mono<Long> referenceCount = repository.findUserAndDescendantsTeam(username).count();
         Mono<UserWalletEntity> userWalletEntity = usersEntity.flatMap(user -> userWalletReactiveRepository.findByUserId(user.getId()));
-        Mono<BigDecimal> balance = paymentHistoryRepository.filterPaymentHistory(TypeHistory.Earnings, token)
-                .reduce(BigDecimal.ZERO, (acc, res) -> acc.add(res.getBalance()));
-        return Mono.zip(usersEntity, referenceCount, userWalletEntity, balance)
-                .flatMap(el -> Mono.just(new PanelUsers(el.getT1().getRefLink(), el.getT3().getBalance(), el.getT4(), el.getT2().intValue())));
+        return Mono.zip(usersEntity, referenceCount, userWalletEntity)
+                .flatMap(el -> Mono.just(new PanelUsers(el.getT1().getRefLink(), el.getT3().getBalance().add(el.getT3().getBingoWinnings()), el.getT3().getBingoWinnings(), el.getT2().intValue())));
 
     }
 

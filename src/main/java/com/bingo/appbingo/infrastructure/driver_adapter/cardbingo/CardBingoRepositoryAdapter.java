@@ -74,8 +74,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
     @Override
     public Mono<CardBingo> getCardBingoRound(String lotteryId, Integer round, String token) {
-        System.out.println("llamado "+  round);
-        return roundRepository.getRoundId(round)
+       return roundRepository.getRoundId(round)
                 .flatMap(ele -> getCardBingo(lotteryId, token)
                         .filter(data -> data.getRound().equals(ele.getNumberRound()))
                         .next());

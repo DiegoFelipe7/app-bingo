@@ -106,7 +106,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
         return ballRepository.getAllBall()
                 .flatMap(ball -> lotteryRepository.findByKey(lottery)
                         .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
-                        .flatMap(lotteryEntity -> repository.findByIdLotteryAndNumberRound(lotteryEntity.getId(), id)
+                        .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
                                 .flatMap(roundEntity -> {
                                     List<String> updatedBalls = new ArrayList<>(roundEntity.getBalls());
                                     updatedBalls.add(ball.getBall());
@@ -123,7 +123,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
     public Mono<Boolean> validBalls(Integer id, String ball) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
-                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball))).log()
+                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball)))
                 .defaultIfEmpty(false);
     }
 

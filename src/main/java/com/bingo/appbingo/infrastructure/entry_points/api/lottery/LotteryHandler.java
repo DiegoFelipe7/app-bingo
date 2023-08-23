@@ -28,7 +28,7 @@ public class LotteryHandler {
     private final GetLotteryRoundUseCase getLotteryRoundUseCase;
     private final GetLotteryStarAdminUseCase getLotteryStarAdminUseCase;
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> saveLottery(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(LotteryDto.class)
                 .flatMap(ele -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)

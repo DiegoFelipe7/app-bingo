@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface RoundReactiveRepository extends ReactiveCrudRepository<RoundEntity, Integer>, ReactiveQueryByExampleExecutor<RoundEntity> {
-    Mono<RoundEntity> findByIdLotteryAndNumberRound(Integer lottery , Integer round);
+    Mono<RoundEntity> findByIdLotteryAndAndId(Integer lottery , Integer round);
 
 }

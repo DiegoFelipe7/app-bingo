@@ -7,6 +7,7 @@ import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.lottery.*;
 import com.bingo.appbingo.domain.usecase.round.GetLotteryRoundUseCase;
 import com.bingo.appbingo.domain.usecase.round.StartRoundUseCase;
+import com.bingo.appbingo.domain.usecase.round.StopRoundUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,6 +26,7 @@ public class LotteryHandler {
     private final GetLotteryIdUseCase getLotteryIdUseCase;
     private final GetLotteryAvailableUseCase getLotteryAvailableUseCase;
     private final StartRoundUseCase startRoundUseCase;
+    private final StopRoundUseCase stopRoundUseCase;
     private final GetLotteryRoundUseCase getLotteryRoundUseCase;
     private final GetLotteryStarAdminUseCase getLotteryStarAdminUseCase;
 
@@ -75,11 +77,10 @@ public class LotteryHandler {
     }
 
     public Mono<ServerResponse> stopRound(ServerRequest serverRequest){
-        String lottery = serverRequest.pathVariable("lottery");
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(startRoundUseCase.apply(lottery,id), Void.class);
+                .body(stopRoundUseCase.apply(id), Response.class);
     }
 
 }

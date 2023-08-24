@@ -73,4 +73,13 @@ public class LotteryHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(startRoundUseCase.apply(lottery,id), Void.class);
     }
+
+    public Mono<ServerResponse> stopRound(ServerRequest serverRequest){
+        String lottery = serverRequest.pathVariable("lottery");
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(startRoundUseCase.apply(lottery,id), Void.class);
+    }
+
 }

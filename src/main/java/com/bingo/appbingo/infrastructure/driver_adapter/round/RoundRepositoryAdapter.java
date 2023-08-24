@@ -96,7 +96,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                     ele.setCompleted(Boolean.TRUE);
                     ele.setUpdatedAt(LocalDateTime.now());
                     return repository.save(ele)
-                            .thenReturn(new Response(TypeStateResponses.Success, "Configuracion realizada"));
+                            .thenReturn(new Response(TypeStateResponses.Success, "Ronda terminada"));
                 });
     }
 

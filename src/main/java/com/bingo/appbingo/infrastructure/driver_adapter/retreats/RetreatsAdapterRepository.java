@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Repository
 public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreats, RetreatsEntity, Integer, RetreatsReactiveRepository> implements RetreatsRepository {
@@ -45,7 +46,10 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
 
     @Override
     public Mono<Response> moneyRequest(Retreats retreats, String token) {
-       // var data= usersRepository.getUserIdToken(token)
+        BigDecimal priceTotal = retreats.getPrice();
+        BigDecimal  total = priceTotal.multiply(new BigDecimal("0.03"));
+
+        // var data= usersRepository.getUserIdToken(token)
               //  .map(ele->{
 
         //});
@@ -84,6 +88,12 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
     public Flux<Retreats> getAllRetreats() {
         return repository.findAll()
                 .filter(ele -> ele.getStateRetreats().equals(StateTransaction.Pending))
-                .map(RetreatsMapper::retreatsEntityARetreats);
+                .map(RetreatsMapper::retreatsEntityARetreats)
+                .sort(Comparator.comparing(Retreats::getId));
+    }
+
+    @Override
+    public Mono<Response> invalidRetreats() {
+        return null;
     }
 }

@@ -13,4 +13,6 @@ public interface RetreatsRepository {
     Mono<Response> approveMoney(Integer id,String wallet , BigDecimal money);
     Mono<Void> updateState(Integer id);
     Flux<Retreats> getAllRetreats();
+
+    Mono<Response> invalidRetreats();
 }

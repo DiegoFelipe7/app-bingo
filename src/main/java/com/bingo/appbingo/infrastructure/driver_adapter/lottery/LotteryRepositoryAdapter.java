@@ -3,6 +3,7 @@ package com.bingo.appbingo.infrastructure.driver_adapter.lottery;
 import com.bingo.appbingo.domain.model.lottery.Lottery;
 import com.bingo.appbingo.domain.model.lottery.LotteryDto;
 import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
+import com.bingo.appbingo.domain.model.retreats.Retreats;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.model.utils.TypeStateResponses;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Comparator;
 
 
 @Repository
@@ -71,7 +74,9 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
     public Flux<LotteryDto> getLotteryStartAdmin() {
         return repository.findAll()
                 .filter(ele->ele.getState().equals(Boolean.TRUE))
-                .flatMap(ele->getLotteryId(ele.getKey()));
+                .flatMap(ele->getLotteryId(ele.getKey()))
+                .sort(Comparator.comparing(LotteryDto::getId));
+
     }
 
 }

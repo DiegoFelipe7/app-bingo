@@ -92,6 +92,9 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
                 .flatMap(ele -> {
+                    if(ele.getUserWinner()!=null){
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error un usuario ya gano esta ronda de bingo", TypeStateResponse.Error));
+                    }
                     ele.setUserWinner(1);
                     ele.setCompleted(Boolean.TRUE);
                     ele.setUpdatedAt(LocalDateTime.now());

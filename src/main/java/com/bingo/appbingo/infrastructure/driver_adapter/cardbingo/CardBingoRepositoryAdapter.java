@@ -99,11 +99,10 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     @Override
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, String lotteryId) {
        return userRepository.getUserIdToken(token)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en el token", TypeStateResponse.Error)))
-                .flatMap(user -> {
+               .flatMap(user -> {
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
-                    Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());
+                    //Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());
                     return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total , TypeHistory.Shopping)
                             .thenMany(Flux.fromIterable(cardBingo)
                                     .index()
@@ -115,7 +114,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
                                         return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
                                     }))
                             .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
-                            .then(updateUser)
+                            //.then(updateUser)
                             .then(planPurchaseMono)
                             .then(Mono.just(new Response(TypeStateResponses.Success, "Compra de paquete realizada")));
                 });
@@ -177,7 +176,8 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
                     .flatMap(data -> packagePurchaseRepository.save(new PackagePurchaseEntity(data.getId(), data.getUsername(), data.getParentId())))
                     .then(userRepository.distributeCommission(userId, total));
         }
-        return userRepository.distributeCommission(userId, total);
+        return Mono.empty();
+       // return userRepository.distributeCommission(userId, total);
     }
 
     public Flux<BingoBalls> generateBalls(Integer min) {

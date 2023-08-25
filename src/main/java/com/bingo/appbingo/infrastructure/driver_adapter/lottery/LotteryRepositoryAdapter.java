@@ -40,8 +40,15 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
     }
 
     @Override
-    public Mono<Response> inactivateLottery() {
-        return null;
+    public Mono<Response> inactivateLottery(String key) {
+        return repository.findByKey(key)
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST,"Loteria invalida",TypeStateResponse.Success)))
+                .flatMap(ele->{
+                    ele.setId(ele.getId());
+                    ele.setState(Boolean.FALSE);
+                    return repository.save(ele)
+                            .thenReturn(new Response(TypeStateResponses.Success,"Loteria inactivada"));
+                });
     }
 
 

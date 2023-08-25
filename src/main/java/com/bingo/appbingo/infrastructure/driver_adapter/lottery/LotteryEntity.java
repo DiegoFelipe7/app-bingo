@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,5 +22,6 @@ public class LotteryEntity {
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;
+    private BigDecimal price;
     private Boolean state;
 }

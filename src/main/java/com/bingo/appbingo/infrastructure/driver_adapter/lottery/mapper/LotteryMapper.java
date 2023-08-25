@@ -20,6 +20,7 @@ public class LotteryMapper {
                 .createdAt(lotteryEntity.getCreatedAt())
                 .startDate(lotteryEntity.getStartDate())
                 .numberOfRounds(lotteryEntity.getNumberOfRounds())
+                .price(lotteryEntity.getPrice())
                 .state(lotteryEntity.getState())
                 .build();
     }
@@ -30,6 +31,7 @@ public class LotteryMapper {
                 .createdAt(lottery.getCreatedAt())
                 .startDate(lottery.getStartDate())
                 .numberOfRounds(lottery.getNumberOfRounds())
+                .price(lottery.getPrice())
                 .state(lottery.getState())
                 .build();
     }
@@ -53,6 +55,7 @@ public class LotteryMapper {
                 .startDate(Utils.formatStartDate(lotteryEntity.getStartDate()))
                 .numberOfRounds(lotteryEntity.getNumberOfRounds())
                 .rounds(round)
+                .price(lotteryEntity.getPrice())
                 .state(lotteryEntity.getState())
                 .build();
     }

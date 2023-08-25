@@ -29,6 +29,7 @@ public class LotteryHandler {
     private final StopRoundUseCase stopRoundUseCase;
     private final GetLotteryRoundUseCase getLotteryRoundUseCase;
     private final GetLotteryStarAdminUseCase getLotteryStarAdminUseCase;
+    private final InactiveLotteryUseCase inactiveLotteryUseCase;
 
     //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> saveLottery(ServerRequest serverRequest) {
@@ -75,12 +76,19 @@ public class LotteryHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(startRoundUseCase.apply(lottery,id), Void.class);
     }
-
+    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ServerResponse> stopRound(ServerRequest serverRequest){
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(stopRoundUseCase.apply(id), Response.class);
+    }
+
+    public Mono<ServerResponse> inactiveLottery(ServerRequest serverRequest){
+        String id = serverRequest.pathVariable("id");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(inactiveLotteryUseCase.apply(id), Response.class);
     }
 
 }

@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface LotteryRepository {
     Mono<Response> saveLottery(LotteryDto lotteryDto);
-    Mono<Response> inactivateLottery();
+    Mono<Response> inactivateLottery(String key);
 
     Flux<Lottery> getLottery();
     Mono<Lottery> getLotteryState();

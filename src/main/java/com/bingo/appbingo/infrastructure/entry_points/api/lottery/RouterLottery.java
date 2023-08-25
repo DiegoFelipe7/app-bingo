@@ -20,6 +20,7 @@ public class RouterLottery {
                 .GET(PATH+"start/{lottery}/round/{id}" , lotteryHandler::startRound)
                 .POST(PATH+"save",lotteryHandler::saveLottery)
                 .PATCH(PATH+"stop/round/{id}" , lotteryHandler::stopRound)
+                .PATCH(PATH+"inactive/{id}" , lotteryHandler::inactiveLottery)
                 .build();
     }
 

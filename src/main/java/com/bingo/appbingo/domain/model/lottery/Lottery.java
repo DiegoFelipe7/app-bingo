@@ -1,6 +1,8 @@
 package com.bingo.appbingo.domain.model.lottery;
 
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ public class Lottery {
     private LocalDateTime createdAt;
     private LocalDateTime startDate;
     private Integer numberOfRounds;
+    private BigDecimal price;
     private Boolean state;
 
 }

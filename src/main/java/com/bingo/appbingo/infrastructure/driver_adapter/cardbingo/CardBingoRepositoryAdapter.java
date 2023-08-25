@@ -37,7 +37,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     private final LotteryRepository lotteryRepository;
     private final RoundRepository roundRepository;
     private static final Integer SIZE = 25;
-
+    private static final BigDecimal price =BigDecimal.valueOf(5);
     public CardBingoRepositoryAdapter(CardBingoDBRepository repository,LotteryRepository lotteryRepository , RoundRepository roundRepository, UsersRepository userRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,  ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.userRepository = userRepository;
@@ -100,7 +100,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, String lotteryId) {
        return userRepository.getUserIdToken(token)
                .flatMap(user -> {
-                   var price = lotteryRepository.priceLottery(lotteryId).toFuture().join();
+                 //  var price = lotteryRepository.priceLottery(lotteryId).toFuture().join();
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
                     //Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());

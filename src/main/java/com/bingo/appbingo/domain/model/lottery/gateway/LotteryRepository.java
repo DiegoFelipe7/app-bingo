@@ -6,6 +6,8 @@ import com.bingo.appbingo.domain.model.utils.Response;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 public interface LotteryRepository {
     Mono<Response> saveLottery(LotteryDto lotteryDto);
     Mono<Response> inactivateLottery(String key);
@@ -16,5 +18,5 @@ public interface LotteryRepository {
     Mono<LotteryDto> getLotteryId(String id);
 
     Flux<LotteryDto> getLotteryStartAdmin();
-
+    Mono<BigDecimal> priceLottery(String key);
 }

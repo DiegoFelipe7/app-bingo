@@ -5,6 +5,7 @@ import com.bingo.appbingo.domain.model.cardbingo.CardBingo;
 import com.bingo.appbingo.domain.model.cardbingo.gateway.CardBingoRepository;
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.enums.TypeLottery;
+import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
 import com.bingo.appbingo.domain.model.round.gateway.RoundRepository;
 import com.bingo.appbingo.domain.model.users.gateway.UsersRepository;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -28,21 +29,20 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-//TODO: PENDIENTE DE VERIFICAR EL CAMBIO DE USUARIO LA INYECCION REVISAR EL ANTERIO PUSH
 @Repository
 public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, CardBingoEntity, String, CardBingoDBRepository> implements CardBingoRepository {
     private final UsersRepository userRepository;
     private final UserWalletRepositoryAdapter userWalletRepositoryAdapter;
     private final PackagePurchaseReactiveRepository packagePurchaseRepository;
+    private final LotteryRepository lotteryRepository;
     private final RoundRepository roundRepository;
-    private static final BigDecimal price = BigDecimal.valueOf(5);
     private static final Integer SIZE = 25;
 
-    public CardBingoRepositoryAdapter(CardBingoDBRepository repository, RoundRepository roundRepository, UsersRepository userRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,  ObjectMapper mapper) {
+    public CardBingoRepositoryAdapter(CardBingoDBRepository repository,LotteryRepository lotteryRepository , RoundRepository roundRepository, UsersRepository userRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,  ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.userRepository = userRepository;
         this.roundRepository = roundRepository;
+        this.lotteryRepository=lotteryRepository;
         this.userWalletRepositoryAdapter = userWalletRepositoryAdapter;
         this.packagePurchaseRepository = packagePurchaseRepository;
     }
@@ -100,6 +100,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, String lotteryId) {
        return userRepository.getUserIdToken(token)
                .flatMap(user -> {
+                   var price = lotteryRepository.priceLottery(lotteryId).toFuture().join();
                     BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
                     Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
                     //Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 
 
@@ -84,6 +85,11 @@ public class LotteryRepositoryAdapter extends ReactiveAdapterOperations<Lottery,
                 .flatMap(ele->getLotteryId(ele.getKey()))
                 .sort(Comparator.comparing(LotteryDto::getId));
 
+    }
+
+    @Override
+    public Mono<BigDecimal> priceLottery(String key) {
+        return repository.findByKey(key).map(LotteryEntity::getPrice);
     }
 
 }

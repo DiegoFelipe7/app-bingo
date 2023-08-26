@@ -46,13 +46,14 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
 
     @Override
     public Mono<Response> moneyRequest(Retreats retreats, String token) {
-        BigDecimal priceTotal = retreats.getPrice();
-        BigDecimal  total = priceTotal.multiply(new BigDecimal("0.03"));
+        BigDecimal price = retreats.getPrice();
+        BigDecimal   commission = price.multiply(new BigDecimal("0.03"));
 
-        // var data= usersRepository.getUserIdToken(token)
-              //  .map(ele->{
+        /* var data= usersRepository.getUserIdToken(token)
+                .map(ele->{
 
-        //});
+
+        });*/
         return null;
     }
 

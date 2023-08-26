@@ -24,17 +24,17 @@ public class BallRepositoryAdapter extends ReactiveAdapterOperations<Balls, Ball
         super(repository, mapper, d -> mapper.mapBuilder(d, Balls.BallsBuilder.class).build());
     }
 
-
+    //TODO: CAMBIAR A 75
     @Override
     public Flux<Balls> getAllBall() {
         return repository.findAll()
                 .map(BallsMapper::ballsEntityABalls)
                 .collectList()
                 .flatMapMany(list -> {
-                    List<Balls> randomBalls = getRandomElements(list, 75);
+                    List<Balls> randomBalls = getRandomElements(list, 5);
                     return Flux.fromIterable(randomBalls);
                 })
-                .delayElements(Duration.ofSeconds(10))
+                .delayElements(Duration.ofSeconds(5))
                 .subscribeOn(Schedulers.parallel());
     }
 

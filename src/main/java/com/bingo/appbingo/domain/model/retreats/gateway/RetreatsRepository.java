@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public interface RetreatsRepository {
     Mono<Retreats> retreatsId(Integer id);
-    Mono<Response> moneyRequest(Retreats retreats , String token);
+    Mono<Response> moneyRequest(Retreats retreats);
     Mono<Response> approveMoney(Integer id,String wallet , BigDecimal money);
     Mono<Void> updateState(Integer id);
     Flux<Retreats> getAllRetreats();

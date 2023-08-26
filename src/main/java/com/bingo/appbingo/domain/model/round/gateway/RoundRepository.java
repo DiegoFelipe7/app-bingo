@@ -1,5 +1,6 @@
 package com.bingo.appbingo.domain.model.round.gateway;
 
+import com.bingo.appbingo.domain.model.balls.Balls;
 import com.bingo.appbingo.domain.model.round.Round;
 import com.bingo.appbingo.domain.model.utils.Response;
 import reactor.core.publisher.Flux;
@@ -13,7 +14,7 @@ public interface RoundRepository {
     Flux<Round> getAllRounds(String id);
     Mono<Round> getNumberRound(Integer id);
     Mono<Response> noRoundWinner(Integer id);
-    Mono<Void> saveBall(String lottery , Integer round);
+    Flux<Balls> saveBall(String lottery , Integer round);
 
     Mono<Boolean> validBalls(Integer id , String ball);
 

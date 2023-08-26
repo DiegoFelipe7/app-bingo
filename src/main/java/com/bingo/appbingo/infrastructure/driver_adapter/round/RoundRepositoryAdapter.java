@@ -1,5 +1,6 @@
 package com.bingo.appbingo.infrastructure.driver_adapter.round;
 
+import com.bingo.appbingo.domain.model.balls.Balls;
 import com.bingo.appbingo.domain.model.balls.gateway.BallRepository;
 import com.bingo.appbingo.domain.model.enums.TypeHistory;
 import com.bingo.appbingo.domain.model.lottery.gateway.LotteryRepository;
@@ -102,11 +103,29 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                             .thenReturn(new Response(TypeStateResponses.Success, "Ronda terminada"));
                 });
     }
-
+    /*
     @Override
 
     public Mono<Void> saveBall(String lottery, Integer id) {
-        return ballRepository.getAllBall()
+        var data = ballRepository.getAllBall()
+                .flatMap(ball -> lotteryRepository.findByKey(lottery)
+                        .   switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
+                        .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
+                                .flatMap(roundEntity -> {
+                                    List<String> updatedBalls = new ArrayList<>(roundEntity.getBalls());
+                                    updatedBalls.add(ball.getBall());
+                                    roundEntity.setBalls(updatedBalls);
+                                    return repository.save(roundEntity)
+                                })
+                        )
+                ).map(RoundEntity::getBalls);
+    }
+*/
+
+    @Override
+
+    public Flux<Balls> saveBall(String lottery, Integer id) {
+        return ballRepository.getAllBall().log()
                 .flatMap(ball -> lotteryRepository.findByKey(lottery)
                         .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
                         .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
@@ -115,12 +134,10 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                                     updatedBalls.add(ball.getBall());
                                     roundEntity.setBalls(updatedBalls);
                                     return repository.save(roundEntity);
-                                })
+                                }).thenReturn(ball)
                         )
-                )
-                .then();
+                );
     }
-
 
     @Override
     public Mono<Boolean> validBalls(Integer id, String ball) {

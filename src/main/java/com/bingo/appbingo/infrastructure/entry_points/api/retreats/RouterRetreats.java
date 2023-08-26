@@ -13,6 +13,7 @@ public class RouterRetreats {
      RouterFunction<ServerResponse> RetreatsRouter(RetreatsHandler retreatsHandler){
         return RouterFunctions.route()
                 .GET(PATH+"list", retreatsHandler::getAllRetreats)
+                .POST(PATH+"request/money",retreatsHandler::saveRetreats)
                 .build();
     }
 

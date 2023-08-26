@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Retreats {
     private Integer id;
-    private Integer wallet;
+    private String wallet;
     private Integer userWalletId;
     private BigDecimal price;
     private BigDecimal commissionPercentage;

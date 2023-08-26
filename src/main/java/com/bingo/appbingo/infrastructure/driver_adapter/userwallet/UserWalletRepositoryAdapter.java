@@ -61,7 +61,7 @@ public class UserWalletRepositoryAdapter extends ReactiveAdapterOperations<UserW
     public Mono<UserWallet> getWalletUser(String token) {
         String username = jwtProvider.extractToken(token);
         return usersReactiveRepository.findByUsername(username)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ocurrió un error con el token", TypeStateResponse.Error)))
+                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La billetera no existe", TypeStateResponse.Error)))
                 .flatMap(user -> repository.findByUserId(user.getId()).map(UserWalletMapper::userWalletEntityAUserWallet));
 
     }

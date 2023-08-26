@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class RetreatsEntity {
     @Id
     private Integer id;
-    private Integer wallet;
+    private String wallet;
     private Integer userWalletId;
     private BigDecimal price;
     private BigDecimal commissionPercentage;

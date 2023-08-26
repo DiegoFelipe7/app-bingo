@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoOperator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,23 +46,31 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
     }
 
     @Override
-    public Mono<Response> moneyRequest(Retreats retreats, String token) {
+    public Mono<Response> moneyRequest(Retreats retreats) {
         BigDecimal price = retreats.getPrice();
-        BigDecimal   commission = price.multiply(new BigDecimal("0.03"));
-
-        /* var data= usersRepository.getUserIdToken(token)
-                .map(ele->{
-
-
-        });*/
-        return null;
+        BigDecimal commission = price.multiply(new BigDecimal("0.03"));
+        //price = price.stripTrailingZeros();
+        //commission = commission.stripTrailingZeros();
+        return userWalletRepositoryAdapter.getWalletKey(retreats.getWallet())
+                .flatMap(walletInfo -> {
+                    if (retreats.getPrice().compareTo(walletInfo.getBalance()) > 0) {
+                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Saldo insuficiente", TypeStateResponse.Warning));
+                    }
+                    retreats.setStateRetreats(StateTransaction.Pending);
+                    retreats.setUserWalletId(walletInfo.getUserId());
+                    retreats.setCommissionPercentage(commission);
+                    retreats.setPrice(price.subtract(commission));
+                    System.out.println(retreats);
+                    return repository.save(RetreatsMapper.retreatsARetreatsEntity(retreats))
+                            .thenReturn(new Response(TypeStateResponses.Success, "Tu pago se procesa dentro de 24 horas"));
+                });
     }
+
 
     @Override
     public Mono<Response> approveMoney(Integer id, String wallet, BigDecimal money) {
         return userWalletRepositoryAdapter.getWalletKey(wallet)
                 .flatMap(walletKey -> {
-                    //var total= walletKey.getBalance().
                     Mono<Users> usersMono = usersRepository.getUserId(walletKey.getUserId());
                     Mono<Void> decrement = userWalletRepositoryAdapter.decreaseBalanceBingoWinner(walletKey.getUserId(), money, TypeHistory.Retreats);
                     return Mono.zip(usersMono, decrement)

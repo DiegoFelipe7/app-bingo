@@ -145,5 +145,8 @@ public class UsersRepositoryAdapter extends ReactiveAdapterOperations<Users, Use
                         })).then();
     }
 
-
+    @Override
+    public Mono<String> userWinner(Integer id) {
+        return getUserId(id).map(Users::getUsername);
+    }
 }

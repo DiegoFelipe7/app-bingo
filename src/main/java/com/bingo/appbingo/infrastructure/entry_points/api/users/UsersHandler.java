@@ -23,6 +23,7 @@ public class UsersHandler {
     private final ReferencesUseCase referencesUseCase;
     private final ReferenceTeamUseCase referenceTeamUseCase;
     private final GetUserPanelUseCase getUserPanelUseCase;
+    private final UserWinnerUseCase userWinnerUseCase;
 
     public Mono<ServerResponse> references(ServerRequest serverRequest) {
         String token = serverRequest.headers().firstHeader("Authorization");
@@ -71,5 +72,11 @@ public class UsersHandler {
                 .body(getUserIdUseCase.apply(token),Users.class);
     }
 
+    public Mono<ServerResponse> userWinnerRound(ServerRequest serverRequest){
+        Integer id =Integer.valueOf(serverRequest.pathVariable("id"));
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(userWinnerUseCase.apply(id), String.class);
+    }
 
 }

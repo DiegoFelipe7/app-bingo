@@ -20,7 +20,8 @@ public class RouterUsers {
                 .GET(PATH+"getUser",usersHandler::getUserId)
                 .GET(PATH+"panel",usersHandler::getUserPanel)
                 .PUT(PATH+"edit",usersHandler::updateUser)
-               // .POST(PATH+"seedEmail" , usersHandler::seedEmail)
+                .GET(PATH+"winner/{id}" , usersHandler::userWinnerRound)
+                //.POST(PATH+"seedEmail" , usersHandler::seedEmail)
                 .build();
     }
 }

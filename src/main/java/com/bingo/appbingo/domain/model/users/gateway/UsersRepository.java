@@ -11,18 +11,13 @@ import java.math.BigDecimal;
 
 public interface UsersRepository {
     Flux<References> getAllReferences(String token);
-
     Flux<References> getAllReferencesTeam(String token);
-
     Flux<Users> getAllUsers();
-
     Mono<Response> editUser(Users user);
-
     Mono<Users> getUserIdToken(String token);
     Mono<Users> getUserId(Integer id);
     Mono<PanelUsers> panelUser(String token);
-
     Mono<Void> activateUserNetwork(Integer userId);
-
     Mono<Void> distributeCommission(Integer id , BigDecimal total);
+    Mono<String> userWinner (Integer id);
 }

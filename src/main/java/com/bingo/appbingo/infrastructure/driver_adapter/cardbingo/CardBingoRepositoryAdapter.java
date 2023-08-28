@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 @Repository
 public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, CardBingoEntity, String, CardBingoDBRepository> implements CardBingoRepository {
     private final UsersRepository userRepository;
@@ -37,12 +38,13 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     private final LotteryRepository lotteryRepository;
     private final RoundRepository roundRepository;
     private static final Integer SIZE = 25;
-    private static final BigDecimal price =BigDecimal.valueOf(5);
-    public CardBingoRepositoryAdapter(CardBingoDBRepository repository,LotteryRepository lotteryRepository , RoundRepository roundRepository, UsersRepository userRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter,  ObjectMapper mapper) {
+    private static final BigDecimal price = BigDecimal.valueOf(5);
+
+    public CardBingoRepositoryAdapter(CardBingoDBRepository repository, LotteryRepository lotteryRepository, RoundRepository roundRepository, UsersRepository userRepository, PackagePurchaseReactiveRepository packagePurchaseRepository, UserWalletRepositoryAdapter userWalletRepositoryAdapter, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.mapBuilder(d, CardBingo.CardBingoBuilder.class).build());
         this.userRepository = userRepository;
         this.roundRepository = roundRepository;
-        this.lotteryRepository=lotteryRepository;
+        this.lotteryRepository = lotteryRepository;
         this.userWalletRepositoryAdapter = userWalletRepositoryAdapter;
         this.packagePurchaseRepository = packagePurchaseRepository;
     }
@@ -74,7 +76,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
 
     @Override
     public Mono<CardBingo> getCardBingoRound(String lotteryId, Integer round, String token) {
-       return roundRepository.getRoundId(round)
+        return roundRepository.getRoundId(round)
                 .flatMap(ele -> getCardBingo(lotteryId, token)
                         .filter(data -> data.getRound().equals(ele.getNumberRound()))
                         .next());
@@ -95,49 +97,47 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
     }
 
 
-
     @Override
     public Mono<Response> saveCardBingo(List<CardBingo> cardBingo, String token, String lotteryId) {
-       return userRepository.getUserIdToken(token)
-               .flatMap(user -> {
-                 //  var price = lotteryRepository.priceLottery(lotteryId).toFuture().join();
-                    BigDecimal total = price.multiply(Utils.priceBingo(cardBingo.size()));
-                    Mono<Void> planPurchaseMono = planPurchase(total, user.getId());
-                    //Mono<Void> updateUser = userRepository.activateUserNetwork(user.getId());
-                    return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total , TypeHistory.Shopping)
-                            .thenMany(Flux.fromIterable(cardBingo)
-                                    .index()
-                                    .concatMap(card -> {
-                                        Integer number = card.getT1().intValue() + 1;
-                                        card.getT2().setUserId(user.getId());
-                                        card.getT2().setLotteryId(lotteryId);
-                                        card.getT2().setRound(number);
-                                        return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
-                                    }))
-                            .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
-                            //.then(updateUser)
-                            .then(planPurchaseMono)
-                            .then(Mono.just(new Response(TypeStateResponses.Success, "Compra de paquete realizada")));
-                });
+        return userRepository.getUserIdToken(token)
+                .flatMap(user -> price(lotteryId, cardBingo.size())
+                            .flatMap(total -> {
+                                return userWalletRepositoryAdapter.decreaseBalance(user.getId(), total, TypeHistory.Shopping)
+                                        .thenMany(Flux.fromIterable(cardBingo)
+                                                .index()
+                                                .concatMap(card -> {
+                                                    Integer number = card.getT1().intValue() + 1;
+                                                    card.getT2().setUserId(user.getId());
+                                                    card.getT2().setLotteryId(lotteryId);
+                                                    card.getT2().setRound(number);
+                                                    return repository.save(CardBingoMapper.cardBingoACardBingoEntity(card.getT2()));
+                                                }))
+                                        .then(Mono.just(new Response(TypeStateResponses.Success, "Cartones almacenados")))
+                                        //.then(planPurchaseMono)
+                                        .then(Mono.just(new Response(TypeStateResponses.Success, "Compra de paquete realizada")));
+                            }));
+    }
+
+    public Mono<BigDecimal> price(String lotteryId, Integer size) {
+        return lotteryRepository.priceLottery(lotteryId)
+                .map(ele -> ele.multiply(Utils.priceBingo(size)));
     }
 
 
     @Override
     public Mono<BingoBalls> markBallot(String lotteryId, Integer round, String ball, String token) {
-       return roundRepository.getRoundId(round)
+        return roundRepository.getRoundId(round)
                 .flatMap(ele -> roundRepository.validBalls(ele.getId(), ball)
                         .flatMap(data -> {
                             if (Boolean.FALSE.equals(data)) {
                                 return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "La balota es invalida", TypeStateResponse.Error));
                             }
-                            return processTypeLAndX(lotteryId, ele.getId(), ball, token , ele.getTypeGame());
+                            return processTypeLAndX(lotteryId, ele.getId(), ball, token, ele.getTypeGame());
                         }));
     }
 
 
-
-
-    public Mono<BingoBalls> processTypeLAndX(String lotteryId, Integer round, String ball, String token , TypeLottery typeLottery) {
+    public Mono<BingoBalls> processTypeLAndX(String lotteryId, Integer round, String ball, String token, TypeLottery typeLottery) {
         return getCardBingoRound(lotteryId, round, token)
                 .flatMap(card -> {
                     List<Integer> indexes = Utils.processTypeGame(typeLottery);
@@ -147,6 +147,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
                     return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Balota invalida", TypeStateResponse.Error));
                 });
     }
+
     public Mono<BingoBalls> updateMarkedBallot(CardBingo card, String ball) {
         return Flux.fromIterable(card.getCard())
                 .filter(numBingo -> numBingo.getNumbers().equals(ball))
@@ -165,7 +166,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
                         .flatMap(card -> {
                             List<Integer> indexes = Utils.processTypeGame(ele.getTypeGame());
                             if (indexes.stream().allMatch(index -> card.getCard().get(index).getState().equals(Boolean.TRUE))) {
-                                return roundRepository.winnerRound(ele.getId(),card.getUserId());
+                                return roundRepository.winnerRound(ele.getId(), card.getUserId());
                             }
                             return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "El bingo no esta completo", TypeStateResponse.Warning));
                         }));
@@ -178,7 +179,7 @@ public class CardBingoRepositoryAdapter extends AdapterOperations<CardBingo, Car
                     .then(userRepository.distributeCommission(userId, total));
         }
         return Mono.empty();
-       // return userRepository.distributeCommission(userId, total);
+        // return userRepository.distributeCommission(userId, total);
     }
 
     public Flux<BingoBalls> generateBalls(Integer min) {

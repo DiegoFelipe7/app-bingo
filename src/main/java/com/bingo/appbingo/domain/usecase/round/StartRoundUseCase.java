@@ -8,10 +8,10 @@ import reactor.core.publisher.Mono;
 import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
-public class StartRoundUseCase implements BiFunction<String , Integer , Flux<Balls>> {
+public class StartRoundUseCase implements BiFunction<String , Integer , Mono<Void>> {
     private final RoundRepository roundRepository;
     @Override
-    public Flux<Balls> apply(String lottery,Integer id ) {
+    public Mono<Void> apply(String lottery,Integer id ) {
         return roundRepository.saveBall(lottery,id);
     }
 }

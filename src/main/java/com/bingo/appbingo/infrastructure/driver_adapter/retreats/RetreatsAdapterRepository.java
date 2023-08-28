@@ -53,14 +53,13 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
         //commission = commission.stripTrailingZeros();
         return userWalletRepositoryAdapter.getWalletKey(retreats.getWallet())
                 .flatMap(walletInfo -> {
-                    if (retreats.getPrice().compareTo(walletInfo.getBalance()) > 0) {
+                    if (retreats.getPrice().compareTo(walletInfo.getBingoWinnings()) > 0) {
                         return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Saldo insuficiente", TypeStateResponse.Warning));
                     }
                     retreats.setStateRetreats(StateTransaction.Pending);
                     retreats.setUserWalletId(walletInfo.getUserId());
                     retreats.setCommissionPercentage(commission);
                     retreats.setPrice(price.subtract(commission));
-                    System.out.println(retreats);
                     return repository.save(RetreatsMapper.retreatsARetreatsEntity(retreats))
                             .thenReturn(new Response(TypeStateResponses.Success, "Tu pago se procesa dentro de 24 horas"));
                 });

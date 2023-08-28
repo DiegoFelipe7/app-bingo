@@ -14,7 +14,7 @@ public interface RoundRepository {
     Flux<Round> getAllRounds(String id);
     Mono<Round> getNumberRound(Integer id);
     Mono<Response> noRoundWinner(Integer id);
-    Flux<Balls> saveBall(String lottery , Integer round);
+    Mono<Void> saveBall(String lottery , Integer round);
 
     Mono<Boolean> validBalls(Integer id , String ball);
 

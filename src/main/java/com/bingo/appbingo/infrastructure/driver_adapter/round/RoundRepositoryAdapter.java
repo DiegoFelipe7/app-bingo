@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,6 +71,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                 .filter(ele -> ele.getState().equals(Boolean.TRUE))
                 .flatMap(ele -> getAllRounds(ele.getKey()).next());
     }
+
     @Override
     public Flux<Round> getAllRounds(String key) {
         return lotteryRepository.findByKey(key)
@@ -93,7 +95,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
                 .flatMap(ele -> {
-                    if(ele.getUserWinner()!=null){
+                    if (ele.getUserWinner() != null) {
                         return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error un usuario ya gano esta ronda de bingo", TypeStateResponse.Error));
                     }
                     ele.setUserWinner(1);
@@ -123,8 +125,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
 */
 
     @Override
-
-    public Flux<Balls> saveBall(String lottery, Integer id) {
+    public Mono<Void> saveBall(String lottery, Integer id) {
         return ballRepository.getAllBall().log()
                 .flatMap(ball -> lotteryRepository.findByKey(lottery)
                         .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ronda inválida", TypeStateResponse.Error)))
@@ -134,33 +135,34 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                                     updatedBalls.add(ball.getBall());
                                     roundEntity.setBalls(updatedBalls);
                                     return repository.save(roundEntity);
-                                }).thenReturn(ball)
+                                })
                         )
-                );
+                ).then();
     }
 
-    @Override
-    public Mono<Boolean> validBalls(Integer id, String ball) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
-                .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball)))
-                .defaultIfEmpty(false);
-    }
 
-    @Override
-    public Mono<Response> winnerRound(Integer id, Integer userId) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
-                .flatMap(round -> {
-                    if (Boolean.TRUE.equals(round.getCompleted()) && round.getUserWinner() != null) {
-                        return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ya hay un ganador de bingo en esta ronda", TypeStateResponse.Warning));
-                    }
-                    round.setCompleted(true);
-                    round.setUserWinner(userId);
-                    return repository.save(round)
-                            .flatMap(savedRound -> userWalletRepositoryAdapter.increaseBalanceWinner(userId, savedRound.getAward(), TypeHistory.Earnings)
-                                    .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
-                });
-    }
+        @Override
+        public Mono<Boolean> validBalls (Integer id, String ball){
+            return repository.findById(id)
+                    .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No existe la ronda", TypeStateResponse.Error)))
+                    .flatMap(ele -> Flux.fromIterable(ele.getBalls()).any(data -> data.equals(ball)))
+                    .defaultIfEmpty(false);
+        }
 
-}
+        @Override
+        public Mono<Response> winnerRound (Integer id, Integer userId){
+            return repository.findById(id)
+                    .switchIfEmpty(Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Error en la ronda", TypeStateResponse.Error)))
+                    .flatMap(round -> {
+                        if (Boolean.TRUE.equals(round.getCompleted()) && round.getUserWinner() != null) {
+                            return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Ya hay un ganador de bingo en esta ronda", TypeStateResponse.Warning));
+                        }
+                        round.setCompleted(true);
+                        round.setUserWinner(userId);
+                        return repository.save(round)
+                                .flatMap(savedRound -> userWalletRepositoryAdapter.increaseBalanceWinner(userId, savedRound.getAward(), TypeHistory.Earnings)
+                                        .thenReturn(new Response(TypeStateResponses.Success, "Felicitaciones")));
+                    });
+        }
+
+    }

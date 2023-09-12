@@ -5,6 +5,7 @@ import com.bingo.appbingo.domain.usecase.retreats.MoneyRequestUseCase;
 import com.bingo.appbingo.domain.model.retreats.Retreats;
 import com.bingo.appbingo.domain.model.utils.Response;
 import com.bingo.appbingo.domain.usecase.retreats.GetAllRetreatsUseCase;
+import com.bingo.appbingo.domain.usecase.retreats.RetreatsUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class RetreatsHandler {
     private final GetAllRetreatsUseCase getAllRetreatsUseCase;
     private final MoneyRequestUseCase moneyRequestUseCase;
+    private final RetreatsUseCase retreatsUseCase;
     public Mono<ServerResponse> getAllRetreats(ServerRequest serverRequest){
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -30,6 +32,15 @@ public class RetreatsHandler {
                 .flatMap(ele->ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(moneyRequestUseCase.apply(ele), Response.class));
+    }
+
+    //TODO:AJUSTAR ESTA MALO
+    public Mono<ServerResponse> retreals(ServerRequest serverRequest){
+        String wallet = serverRequest.pathVariable("transaction");
+        return serverRequest.bodyToMono(Retreats.class)
+                .flatMap(ele->ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(retreatsUseCase.apply(ele,wallet), Response.class));
     }
 
 

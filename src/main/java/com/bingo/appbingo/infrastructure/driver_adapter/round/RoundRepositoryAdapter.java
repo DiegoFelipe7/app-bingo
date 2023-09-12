@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -128,12 +129,12 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                 .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
                         .flatMap(roundEntity -> {
                             List<String> currentBalls = roundEntity.getBalls();
-                            return ballRepository.getAllBall().log()
+                            return ballRepository.getAllBall()
                                     .flatMap(allBallsList -> {
                                         boolean existsInCurrentBalls = currentBalls.contains(allBallsList.getBall());
-                                        System.out.println(existsInCurrentBalls);
+
                                         if (existsInCurrentBalls) {
-                                            return saveBall(lottery, id);
+                                            return Mono.defer(() -> saveBall(lottery, id)).publishOn(Schedulers.parallel());
                                         }
                                         roundEntity.getBalls().add(allBallsList.getBall());
                                         return repository.save(roundEntity).then();

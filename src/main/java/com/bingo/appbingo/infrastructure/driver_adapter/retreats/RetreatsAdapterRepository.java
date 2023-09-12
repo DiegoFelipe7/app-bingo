@@ -49,8 +49,6 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
     public Mono<Response> moneyRequest(Retreats retreats) {
         BigDecimal price = retreats.getPrice();
         BigDecimal commission = price.multiply(new BigDecimal("0.03"));
-        //price = price.stripTrailingZeros();
-        //commission = commission.stripTrailingZeros();
         return userWalletRepositoryAdapter.getWalletKey(retreats.getWallet())
                 .flatMap(walletInfo -> {
                     if (retreats.getPrice().compareTo(walletInfo.getBingoWinnings()) > 0) {
@@ -73,16 +71,18 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
                     Mono<Users> usersMono = usersRepository.getUserId(walletKey.getUserId());
                     Mono<Void> decrement = userWalletRepositoryAdapter.decreaseBalanceBingoWinner(walletKey.getUserId(), money, TypeHistory.Retreats);
                     return Mono.zip(usersMono, decrement)
-                            .flatMap(tuple -> {
-                                Users user = tuple.getT1();
+                            .flatMap(tuple -> Mono.just(new Response(TypeStateResponses.Success, "Transaccion enviada")));
+                }).thenReturn(new Response(TypeStateResponses.Success, "Transaccion enviada"));
+
+
+
+             /*Users user = tuple.getT1();
                                 return emailService.sendNotification(user.getFullName(), user.getEmail())
                                         .then(updateState(id))
                                         .thenReturn(new Response(TypeStateResponses.Success, "Transaccion enviada"));
-
-                            })
-                            .onErrorResume(throwable -> Mono.just(new Response(TypeStateResponses.Error, "Error en la aprobación del dinero: " + throwable.getMessage())));
-                });
+                            */
     }
+
 
     @Override
     public Mono<Void> updateState(Integer id) {

@@ -6,14 +6,13 @@ import com.bingo.appbingo.domain.model.utils.Response;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @RequiredArgsConstructor
-public class MoneyRequestUseCase implements Function<Retreats,Mono<Response>> {
+public class RetreatsUseCase implements BiFunction<Retreats , String , Mono<Response>> {
     private final RetreatsRepository retreatsRepository;
-
     @Override
-    public Mono<Response> apply(Retreats retreats) {
-        return retreatsRepository.moneyRequest(retreats);
+    public Mono<Response> apply(Retreats retreats, String wallet) {
+        return retreatsRepository.approveMoney(retreats.getId(),wallet,retreats.getPrice());
     }
 }

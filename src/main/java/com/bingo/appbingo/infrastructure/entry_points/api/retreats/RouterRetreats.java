@@ -14,6 +14,7 @@ public class RouterRetreats {
         return RouterFunctions.route()
                 .GET(PATH+"list", retreatsHandler::getAllRetreats)
                 .POST(PATH+"request/money",retreatsHandler::saveRetreats)
+                .PATCH(PATH+"validate/{transaction}",retreatsHandler::retreals)
                 .build();
     }
 

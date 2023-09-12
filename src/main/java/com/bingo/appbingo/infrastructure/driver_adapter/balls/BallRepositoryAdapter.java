@@ -24,24 +24,15 @@ public class BallRepositoryAdapter extends ReactiveAdapterOperations<Balls, Ball
         super(repository, mapper, d -> mapper.mapBuilder(d, Balls.BallsBuilder.class).build());
     }
 
-    //TODO: CAMBIAR A 75
     @Override
-    public Flux<Balls> getAllBall() {
+    public Mono<Balls> getAllBall() {
         return repository.findAll()
-                .map(BallsMapper::ballsEntityABalls);
-    }
-
-    private List<Balls> getRandomElements(List<Balls> list, int count) {
-        int totalElements = Math.min(count, list.size());
-        List<Balls> randomElements = new ArrayList<>(totalElements);
-        Random random = new Random();
-        while (randomElements.size() < totalElements) {
-            Balls randomBall = list.get(random.nextInt(list.size()));
-            if (!randomElements.contains(randomBall)) {
-                randomElements.add(randomBall);
-            }
-        }
-        return randomElements;
+                .map(BallsMapper::ballsEntityABalls)
+                .collectList()
+                .flatMap(allBallsList -> {
+                    int randomIndex = (int) (Math.random() * allBallsList.size());
+                    return Mono.just(allBallsList.get(randomIndex));
+                });
     }
 
 }

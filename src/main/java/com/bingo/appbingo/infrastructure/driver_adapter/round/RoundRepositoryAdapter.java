@@ -128,10 +128,10 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                 .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
                         .flatMap(roundEntity -> {
                             List<String> currentBalls = roundEntity.getBalls();
-                            return ballRepository.getAllBall()
-                                    .next()
+                            return ballRepository.getAllBall().log()
                                     .flatMap(allBallsList -> {
                                         boolean existsInCurrentBalls = currentBalls.contains(allBallsList.getBall());
+                                        System.out.println(existsInCurrentBalls);
                                         if (existsInCurrentBalls) {
                                             return saveBall(lottery, id);
                                         }

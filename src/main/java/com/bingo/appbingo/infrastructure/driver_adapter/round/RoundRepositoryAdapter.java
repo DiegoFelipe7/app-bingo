@@ -103,6 +103,7 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
                             .thenReturn(new Response(TypeStateResponses.Success, "Ronda terminada"));
                 });
     }
+
     /*
     @Override
 
@@ -126,34 +127,15 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
         return lotteryRepository.findByKey(lottery)
                 .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
                         .flatMap(roundEntity -> {
-                            // Obtén las bolas actuales del roundEntity
                             List<String> currentBalls = roundEntity.getBalls();
-
-                            // Obtén todas las bolas disponibles
                             return ballRepository.getAllBall()
-                                    .collectList()
+                                    .next()
                                     .flatMap(allBallsList -> {
-                                        if (allBallsList.isEmpty()) {
-                                            return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No hay bolas disponibles", TypeStateResponse.Error));
+                                        boolean existsInCurrentBalls = currentBalls.contains(allBallsList.getBall());
+                                        if (existsInCurrentBalls) {
+                                            return saveBall(lottery, id);
                                         }
-
-                                        // Filtra las bolas que no se han utilizado aún
-                                        List<Balls> unusedBalls = allBallsList.stream()
-                                                .filter(ball -> !currentBalls.contains(ball))
-                                                .collect(Collectors.toList());
-
-                                        if (unusedBalls.isEmpty()) {
-                                            return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Todas las bolas han sido utilizadas", TypeStateResponse.Error));
-                                        }
-
-                                        // Selecciona aleatoriamente una bola de las no utilizadas
-                                        int randomIndex = (int) (Math.random() * unusedBalls.size());
-                                        String selectedBall = unusedBalls.get(randomIndex).getBall();
-
-                                        // Agrega la bola al roundEntity
-                                        currentBalls.add(selectedBall);
-                                        roundEntity.setBalls(currentBalls);
-
+                                        roundEntity.getBalls().add(allBallsList.getBall());
                                         return repository.save(roundEntity).then();
                                     });
                         })
@@ -161,7 +143,36 @@ public class RoundRepositoryAdapter extends ReactiveAdapterOperations<Round, Rou
     }
 
 
-
+        /*return lotteryRepository.findByKey(lottery)
+                .flatMap(lotteryEntity -> repository.findByIdLotteryAndAndId(lotteryEntity.getId(), id)
+                        .flatMap(roundEntity -> {
+                                    return ballRepository.getAllBall()
+                                            .flatMap(ele -> {
+                                                Flux.fromIterable(roundEntity.getBalls()).filter(data->ele.equals(ele.getBall()))
+                                            })
+                                }
+                           /* List<String> currentBalls = roundEntity.getBalls();
+                            return ballRepository.getAllBall()
+                                    .collectList()
+                                    .flatMap(allBallsList -> {
+                                        if (allBallsList.isEmpty()) {
+                                            return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "No hay bolas disponibles", TypeStateResponse.Error));
+                                        }
+                                        List<Balls> unusedBalls = allBallsList.stream()
+                                                .filter(ball -> !currentBalls.contains(ball))
+                                                .collect(Collectors.toList());
+                                        if (unusedBalls.isEmpty()) {
+                                            return Mono.error(new CustomException(HttpStatus.BAD_REQUEST, "Todas las bolas han sido utilizadas", TypeStateResponse.Error));
+                                        }
+                                        int randomIndex = (int) (Math.random() * unusedBalls.size());
+                                        String selectedBall = unusedBalls.get(randomIndex).getBall();
+                                        currentBalls.add(selectedBall);
+                                        roundEntity.setBalls(currentBalls);
+                                        return repository.save(roundEntity).then();
+                                    });
+                        })*/
+    //                    );
+    //  }
 
 
     @Override

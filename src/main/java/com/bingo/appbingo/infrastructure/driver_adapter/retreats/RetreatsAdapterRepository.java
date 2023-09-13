@@ -70,17 +70,13 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
                 .flatMap(walletKey -> {
                     Mono<Users> usersMono = usersRepository.getUserId(walletKey.getUserId());
                     Mono<Void> decrement = userWalletRepositoryAdapter.decreaseBalanceBingoWinner(walletKey.getUserId(), money, TypeHistory.Retreats);
-                    return Mono.zip(usersMono, decrement)
-                            .flatMap(tuple -> Mono.just(new Response(TypeStateResponses.Success, "Transaccion enviada")));
+                    return Mono.when(usersMono, decrement)
+                            .then(updateState(id));
                 }).thenReturn(new Response(TypeStateResponses.Success, "Transaccion enviada"));
 
 
 
-             /*Users user = tuple.getT1();
-                                return emailService.sendNotification(user.getFullName(), user.getEmail())
-                                        .then(updateState(id))
-                                        .thenReturn(new Response(TypeStateResponses.Success, "Transaccion enviada"));
-                            */
+
     }
 
 
@@ -102,7 +98,11 @@ public class RetreatsAdapterRepository extends ReactiveAdapterOperations<Retreat
     }
 
     @Override
-    public Mono<Response> invalidRetreats() {
-        return null;
+    public Mono<Response> invalidRetreats(Integer id) {
+        return updateState(id)
+                .thenReturn(new Response(TypeStateResponses.Success ,"Transaccion invalidada"));
+
     }
+
+
 }

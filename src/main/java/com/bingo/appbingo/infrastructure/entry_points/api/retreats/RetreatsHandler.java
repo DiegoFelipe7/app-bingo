@@ -1,6 +1,7 @@
 package com.bingo.appbingo.infrastructure.entry_points.api.retreats;
 
 
+import com.bingo.appbingo.domain.usecase.retreats.InvalidUseCase;
 import com.bingo.appbingo.domain.usecase.retreats.MoneyRequestUseCase;
 import com.bingo.appbingo.domain.model.retreats.Retreats;
 import com.bingo.appbingo.domain.model.utils.Response;
@@ -21,6 +22,7 @@ public class RetreatsHandler {
     private final GetAllRetreatsUseCase getAllRetreatsUseCase;
     private final MoneyRequestUseCase moneyRequestUseCase;
     private final RetreatsUseCase retreatsUseCase;
+    private final InvalidUseCase invalidUseCase;
     public Mono<ServerResponse> getAllRetreats(ServerRequest serverRequest){
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -41,6 +43,14 @@ public class RetreatsHandler {
                 .flatMap(ele->ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(retreatsUseCase.apply(ele,wallet), Response.class));
+    }
+
+    public Mono<ServerResponse> invalid(ServerRequest serverRequest){
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        return serverRequest.bodyToMono(Retreats.class)
+                .flatMap(ele->ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(invalidUseCase.apply(id), Response.class));
     }
 
 

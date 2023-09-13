@@ -14,5 +14,5 @@ public interface RetreatsRepository {
     Mono<Void> updateState(Integer id);
     Flux<Retreats> getAllRetreats();
 
-    Mono<Response> invalidRetreats();
+    Mono<Response> invalidRetreats(Integer id);
 }
